@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: banking-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/banking_db
+    username: banking_user
+    password: banking_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        "[format_sql]": true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      acks: all
+
+server:
+  port: 8080
