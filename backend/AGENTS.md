@@ -31,6 +31,8 @@
 - Before implementing a new use case, inspect the Git working tree.
 - A new use case must start from a committed state.
 - If there are uncommitted changes, stop and inform the user before starting.
+- **Before implementing any use case sub-case (e.g., "register a new customer"), create an initial commit that reflects the current project state** (e.g., `git add . && git commit -m "wip: scaffold for UCxx — <use-case-name>"`).
+- **After completing a use case sub-case (e.g., entity + repository + service + controller + tests for "register a new customer"), create a dedicated commit** (e.g., `git commit -m "feat(customers): register a new customer"`).
 - When the requested use case is finished, use the project's commit skill to create the final commit.
 - Do not create intermediate commits unless explicitly requested.
 
