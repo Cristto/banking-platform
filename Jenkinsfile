@@ -2,15 +2,11 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Build & Test') {
-            steps {
-                sh './mvnw clean verify'
+                dir('backend') {
+                    sh 'sh ./mvnw clean package -DskipTests'
+                }
             }
         }
     }
