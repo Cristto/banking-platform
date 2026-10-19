@@ -5,14 +5,16 @@ info:
 
 http:
   method: POST
-  url: http://localhost:8081/api/v1/customers
+  url: http://localhost:8081/api/customers
   body:
     type: json
     data: |-
       {
         "documentNumber": "12345678A",
         "firstName": "Juan",
-        "lastName": "Pérez"
+        "lastName": "Perez",
+        "email": "juan.perez@example.com",
+        "phone": "+34 600 000 000"
       }
   auth: inherit
 
