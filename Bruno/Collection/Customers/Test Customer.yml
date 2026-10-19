@@ -1,0 +1,24 @@
+info:
+  name: Test Customer
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8081/api/v1/customers
+  body:
+    type: json
+    data: |-
+      {
+        "documentNumber": "12345678A",
+        "firstName": "Juan",
+        "lastName": "Pérez"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

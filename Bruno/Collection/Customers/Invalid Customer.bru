@@ -1,0 +1,23 @@
+meta {
+  name: Invalid Customer
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/customers
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "documentNumber": "",
+    "firstName": "",
+    "lastName": ""
+  }
+}
