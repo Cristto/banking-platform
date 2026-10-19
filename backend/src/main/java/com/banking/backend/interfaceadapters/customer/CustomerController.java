@@ -1,28 +1,23 @@
 package com.banking.backend.interfaceadapters.customer;
 
-import com.banking.backend.application.customer.RegisterCustomerUseCase;
-
-import jakarta.validation.Valid;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.banking.backend.application.customer.RegisterCustomer;
+import com.banking.backend.application.customer.RegisterCustomerCommand;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/customers")
+@RequestMapping("/api/customers")
 public class CustomerController {
+    private final RegisterCustomer registerCustomer;
 
-    private final RegisterCustomerUseCase registerCustomerUseCase;
-
-    public CustomerController(RegisterCustomerUseCase registerCustomerUseCase) {
-        this.registerCustomerUseCase = registerCustomerUseCase;
+    public CustomerController(RegisterCustomer registerCustomer) {
+        this.registerCustomer = registerCustomer;
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> registerCustomer(@Valid @RequestBody CustomerRequest request) {
-        CustomerResponse response = registerCustomerUseCase.execute(request);
-        return ResponseEntity.status(201).body(response);
+    @ResponseStatus(HttpStatus.CREATED)
+    public CustomerResponse register(@RequestBody RegisterCustomerRequest request) {
+        return CustomerResponse.from(registerCustomer.execute(new RegisterCustomerCommand(
+                request.documentNumber(), request.firstName(), request.lastName(), request.email(), request.phone())));
     }
 }
