@@ -7,8 +7,16 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
+import java.util.Set;
+
 @Repository
 public class JpaCustomerRepository implements CustomerRepository {
+    private static final Set<String> UNIQUE_CUSTOMER_CONSTRAINTS = Set.of(
+            "customers_document_number_key",
+            "customers_email_key",
+            "customers_document_number_normalized_key",
+            "customers_email_normalized_key");
+
     private final SpringDataCustomerRepository repository;
 
     public JpaCustomerRepository(SpringDataCustomerRepository repository) {
@@ -27,17 +35,6 @@ public class JpaCustomerRepository implements CustomerRepository {
 
     @Override
     public Customer save(Customer customer) {
-        try {
-            // Flush here so concurrent duplicate registrations are translated inside the adapter.
-            return repository.saveAndFlush(customer);
-        } catch (DataIntegrityViolationException exception) {
-            for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
-                if (cause instanceof ConstraintViolationException violation
-                        && "23505".equals(violation.getSQLState())) {
-                    throw new DuplicateCustomerException("A customer with this document number or email already exists");
-                }
-            }
-            throw exception;
-        }
+        return repository.save(customer);
     }
 }
