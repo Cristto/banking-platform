@@ -1,62 +1,39 @@
 # Project Agent Directives
 
-- All comments, documentation, and generated technical text must be written in English.
-- Use Clean Architecture with these package layers:
-  - `domain`: models, enums, repository interfaces, domain exceptions
-  - `application`: use cases and application services
-  - `interfaceadapters`: controllers, request/response DTOs, API mappers, exception handlers
-  - `infrastructure`: JPA implementations, Kafka, configuration, security, batch, external integrations
-- Do not create unnecessary interfaces between controllers and application use cases.
-- Do not expose JPA entities directly from controllers.
-- Use `BigDecimal` for monetary values.
-- Prefer constructor injection.
-- Keep transaction boundaries in the application layer when they represent complete business operations.
-- Use database queries properly when needed: JOIN, GROUP BY, projections, pagination, JPQL, Specifications, EntityGraph, etc. Do not replace database work with `findAll()` plus in-memory filtering when the query belongs in the database.
-- Avoid `FetchType.EAGER` unless clearly justified.
-- Consider concurrency and locking for balance-changing operations.
-- Kafka must be used for asynchronous events, not as a replacement for the PostgreSQL transaction that changes balances.
-- Kafka consumers must tolerate duplicate messages when required.
+## General
+- Write all comments, documentation, and technical text in English.
+- Follow Clean Architecture:
+  - `domain`: models, enums, repository interfaces, domain exceptions.
+  - `application`: use cases and application services.
+  - `interfaceadapters`: controllers, DTOs, mappers, exception handlers.
+  - `infrastructure`: JPA, Kafka, configuration, security, batch, external integrations.
+- Use `BigDecimal` for money and constructor injection.
+- Keep business transaction boundaries in the application layer.
+- Avoid unnecessary interfaces, eager fetching, and in-memory filtering when database queries are appropriate.
+- Handle concurrency for balance operations and idempotency for Kafka consumers.
 
-## Existing code protection
+## Implementation
+- Before implementing a new use case, inspect an existing, completed use case and its tests.
+- Follow its architecture, package structure, naming conventions, validation, exception handling, and testing patterns.
+- Adapt the implementation to the new business rules; do not blindly copy code.
+- Reuse existing components and avoid unnecessary abstractions.
+- Modify only files required by the task. Preserve unrelated code and behavior.
 
-- Never delete, rename, move, replace, or substantially modify existing code unless required by the requested task.
-- Modify only files directly related to the current task.
-- Do not perform unrelated refactoring, cleanup, formatting, or package reorganization.
-- Before modifying shared files, inspect their current contents and preserve unrelated behavior.
-- If a required change would affect unrelated code, explain it before making the change.
-- Never use destructive Git or filesystem commands unless explicitly requested.
-
-## Task workflow
-
-- Before implementing a new use case, inspect the Git working tree.
-- A new use case must start from a committed state.
-- If there are uncommitted changes, stop and inform the user before starting.
-- **Before implementing any use case sub-case (e.g., "register a new customer"), create an initial commit that reflects the current project state** (e.g., `git add . && git commit -m "wip: scaffold for UCxx — <use-case-name>"`).
-- **After completing a use case sub-case (e.g., entity + repository + service + controller + tests for "register a new customer"), create a dedicated commit** (e.g., `git commit -m "feat(customers): register a new customer"`).
-- When the requested use case is finished, use the project's commit skill to create the final commit.
-- Do not create intermediate commits unless explicitly requested.
+## Git
+- Check the working tree before starting.
+- If uncommitted changes exist, stop and inform the user.
+- Create one commit after completing each use case sub-case.
+- Never use destructive Git commands without permission.
 
 ## Testing
+- Use JUnit 5 and Mockito when needed.
+- Follow existing test patterns and verify observable behavior.
+- Use Testcontainers when real database or Kafka integration is required.
+- Never run tests without explicit permission.
+- If tests fail, report the cause before modifying production code.
 
-- Use JUnit 5.
-- Use Mockito only when dependencies need isolation.
-- Unit tests should verify observable behavior, not implementation details.
-- Integration tests must not call real third-party APIs.
-- Use Testcontainers when real PostgreSQL or Kafka integration is relevant.
-- Never run tests without explicit user permission.
-- If an authorized test fails, analyze and report the cause first.
-- If the failure reveals a production bug, explain the bug and proposed fix, then wait for explicit approval before modifying production code.
-
-## Comments
-
-- Comment only non-obvious decisions or important logic.
-- Do not comment trivial imports, annotations, getters, setters, or self-explanatory code.
-- Useful comments include transaction behavior, concurrency, locking, Kafka/idempotency, complex queries, Batch logic, and important test behavior.
-
-## Agent behavior
-
-- Keep changes small and focused.
-- Do not inspect unrelated files without a concrete reason.
-- Do not fix unrelated warnings or errors.
-- Avoid repeated searches or exploration loops.
-- Do not expand the task beyond what the user requested.
+## Agent Behavior
+- Keep changes minimal and focused.
+- Do not refactor, reorganize, or inspect unrelated code unnecessarily.
+- Do not expand the requested scope.
+- Ask before making changes that affect unrelated functionality.
