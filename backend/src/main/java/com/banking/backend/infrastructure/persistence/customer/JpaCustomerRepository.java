@@ -7,6 +7,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Set;
 
 @Repository
@@ -36,5 +37,17 @@ public class JpaCustomerRepository implements CustomerRepository {
     @Override
     public Customer save(Customer customer) {
         return repository.save(customer);
+    }
+
+    @Override
+    public List<Customer> findAll() {
+        return repository.findAllByOrderByLastNameAscFirstNameAscIdAsc();
+    }
+
+    @Override
+    public List<Customer> search(String query) {
+        return repository
+                .findByDocumentNumberContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrderByLastNameAscFirstNameAscIdAsc(
+                        query, query, query);
     }
 }
