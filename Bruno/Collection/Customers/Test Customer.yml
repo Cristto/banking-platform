@@ -10,10 +10,10 @@ http:
     type: json
     data: |-
       {
-        "documentNumber": "12345678A",
+        "documentNumber": "12345677A",
         "firstName": "Juan",
         "lastName": "Perez",
-        "email": "juan.perez@example.com",
+        "email": "juan.perezz@example.com",
         "phone": "+34 600 000 000"
       }
   auth: inherit
