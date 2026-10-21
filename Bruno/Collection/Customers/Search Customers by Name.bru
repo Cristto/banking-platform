@@ -1,0 +1,27 @@
+meta {
+  name: Search Customers by Name
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8081/api/customers?query=Juan
+  auth: none
+}
+
+tests {
+  test("returns customers whose name matches the query", function () {
+    expect(res.getStatus()).to.equal(200);
+    const customers = res.getBody();
+    expect(customers).to.be.an("array").that.is.not.empty;
+    expect(customers.every(customer =>
+      [customer.documentNumber, customer.firstName, customer.lastName]
+        .some(value => value.toLowerCase().includes("juan"))
+    )).to.equal(true);
+  });
+
+  test("includes the registered sample customer", function () {
+    const customers = res.getBody();
+    expect(customers.some(customer => customer.documentNumber === "12345678A")).to.equal(true);
+  });
+}

@@ -1,4 +1,4 @@
-# Customer registration requests
+# Customer requests
 
 These requests target the backend at `http://localhost:8081`.
 
@@ -16,3 +16,13 @@ and a malformed email, so it should return `400 Bad Request`.
 The registration request uses fixed sample data. If it has already been
 registered in the database, it will return `409`; change the document number
 and email in both registration and duplicate requests to use a fresh sample.
+
+## Customer search and listing
+
+Run `Register Customer` first so the sample customer exists. Then run:
+
+- `List Customers` to check that the endpoint returns a customer array.
+- `Search Customer by Document` to check an exact document query.
+- `Search Customers by Name` to check a case-insensitive name query.
+
+These requests include Bruno assertions for the HTTP status and response body.
