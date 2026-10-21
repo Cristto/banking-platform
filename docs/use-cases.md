@@ -26,8 +26,6 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 - **UC01.1 — Register customer:** Create a customer with a unique identity reference.
 - **UC01.2 — Search/list customers:** Find customers by name or identity reference.
-- **UC01.3 — View customer details:** Inspect an existing customer's information.
-- ~~**UC01.4 — Deactivate customer:** Deactivate a customer without erasing banking history.~~
 
 **Main rules:** A customer must have a unique identity reference and required information must be valid.
 
@@ -44,29 +42,12 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 - **UC02.1 — Open account:** Open an account for an active customer with an initial zero balance.
 - **UC02.2 — View account details:** Inspect account information and current balance.
 - **UC02.3 — List customer accounts:** List accounts associated with a customer.
-- ~~**UC02.4 — Close account:** Close an eligible account while preserving historical records.~~
 
 **Main rules:** An account must have at least one holder and a new account starts with zero balance.
 
 **Acceptance criteria:** An active customer can open an account and inspect it.
 
-## ~~UC03 — Joint Account Holders (deferred)~~
-
-**Goal:** Support accounts owned by more than one customer.
-
-**Capabilities:** Add an existing customer as a co-holder, view all holders, and remove a holder when permitted.
-
-**Functional use cases (deferred):**
-
-- **UC03.1 — Add co-holder:** Add an existing customer as an account co-holder.
-- **UC03.2 — View account holders:** List all holders of an account.
-- **UC03.3 — Remove co-holder:** Remove a holder while retaining at least one.
-
-**Main rules:** An account must retain at least one holder; the same customer cannot be added twice; only authorized operations can change ownership.
-
-**Acceptance criteria:** Two existing customers can share an account, both are visible as holders, and invalid holder changes are rejected.
-
-## UC04 — Banking Operations
+## UC03 — Banking Operations
 
 **Goal:** Move money safely between accounts and record financial activity.
 
@@ -74,16 +55,16 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Functional use cases:**
 
-- **UC04.1 — Deposit funds:** Add funds to an eligible account.
-- **UC04.2 — Withdraw funds:** Withdraw funds when sufficient funds are available.
-- **UC04.3 — Transfer funds:** Transfer money between accounts atomically.
-- **UC04.4 — View transaction history:** Inspect recorded financial operations.
+- **UC03.1 — Deposit funds:** Add funds to an eligible account.
+- **UC03.2 — Withdraw funds:** Withdraw funds when sufficient funds are available.
+- **UC03.3 — Transfer funds:** Transfer money between accounts atomically.
+- **UC03.4 — View transaction history:** Inspect recorded financial operations.
 
 **Main rules:** Amounts must be positive; withdrawals and transfers require sufficient available funds; accounts must be eligible; a transfer must not debit one account without crediting the other; repeated requests must not create duplicate financial effects.
 
 **Acceptance criteria:** Valid operations update balances and transaction history consistently. Insufficient funds, invalid accounts, and concurrent operations cannot create inconsistent balances.
 
-## UC05 — Debit Card Management
+## UC04 — Debit Card Management
 
 **Goal:** Allow a customer to use a debit card linked to an account.
 
@@ -91,16 +72,15 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Functional use cases:**
 
-- **UC05.1 — Issue debit card:** Associate a card with an eligible account.
-- **UC05.2 — View card status:** Inspect card status and linked account.
-- **UC05.3 — Block card:** Prevent new purchase authorizations.
-- ~~**UC05.4 — Reactivate card:** Restore a blocked card when permitted.~~
+- **UC04.1 — Issue debit card:** Associate a card with an eligible account.
+- **UC04.2 — View card status:** Inspect card status and linked account.
+- **UC04.3 — Block card:** Prevent new purchase authorizations.
 
 **Main rules:** A card must belong to an eligible account; blocked cards cannot authorize new purchases; a debit card does not have a separate stored balance.
 
 **Acceptance criteria:** An eligible account can obtain a card, and blocking it prevents subsequent purchase authorizations.
 
-## UC06 — Card Purchases and Refunds
+## UC05 — Card Purchases and Refunds
 
 **Goal:** Simulate card payments, delayed settlement, and refunds.
 
@@ -108,11 +88,10 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Functional use cases:**
 
-- **UC06.1 — Authorize purchase:** Create a pending purchase and reserve available funds.
-- **UC06.2 — Confirm settlement:** Settle an authorized purchase asynchronously via Kafka.
-- **UC06.3 — Reject settlement:** Reject a pending purchase and release its reservation as appropriate.
-- **UC06.4 — View purchases:** List purchases for a card or account.
-- ~~**UC06.5 — Process refund:** Refund an eligible purchase partially or fully.~~
+- **UC05.1 — Authorize purchase:** Create a pending purchase and reserve available funds.
+- **UC05.2 — Confirm settlement:** Settle an authorized purchase asynchronously via Kafka.
+- **UC05.3 — Reject settlement:** Reject a pending purchase and release its reservation as appropriate.
+- **UC05.4 — View purchases:** List purchases for a card or account.
 
 **Main rules:** A purchase requires an active card and sufficient available funds; authorization and final settlement are separate states; funds must not be debited twice.
 
