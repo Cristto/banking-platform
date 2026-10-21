@@ -6,7 +6,9 @@
 
 ## Overview
 
-Banking Platform simulates a small branch that starts operating with no customers. Over time, customers register, open accounts, manage shared ownership, move money, receive debit cards, and make purchases. An activity simulator will use the same application workflows to generate fictional banking activity.
+Banking Platform simulates a small branch that starts operating with no customers. In the initial scope, customers register, open accounts, move money, receive debit cards, and make purchases settled asynchronously through Kafka. Shared ownership, refunds, and the activity simulator are deferred.
+
+**Scope notation:** ~~Strikethrough use cases~~ are deferred to keep the initial project focused. They can be added in a later phase.
 
 The initial scope is organized into six functional areas. Each area may contain multiple application-level use cases; it is not necessarily a single class, endpoint, or Jira ticket.
 
@@ -18,44 +20,43 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Goal:** Maintain the branch's customer records.
 
-**Capabilities:** Register customers, view and search customer records, update contact details, and deactivate customers when allowed.
+**Capabilities:** Register customers and view/search customer records.
 
 **Functional use cases:**
 
 - **UC01.1 — Register customer:** Create a customer with a unique identity reference.
 - **UC01.2 — Search/list customers:** Find customers by name or identity reference.
 - **UC01.3 — View customer details:** Inspect an existing customer's information.
-- **UC01.4 — Update contact details:** Change phone, email, or address.
-- **UC01.5 — Deactivate customer:** Deactivate a customer without erasing banking history.
+- ~~**UC01.4 — Deactivate customer:** Deactivate a customer without erasing banking history.~~
 
-**Main rules:** A customer must have a unique identity reference; required information must be valid; deactivation must not make existing banking records inaccessible or erase their history.
+**Main rules:** A customer must have a unique identity reference and required information must be valid.
 
-**Acceptance criteria:** Staff can register and find a customer, update their details, and cannot register the same identity twice.
+**Acceptance criteria:** Staff can register and find a customer, and cannot register the same identity twice.
 
 ## UC02 — Account Management
 
 **Goal:** Let existing customers open and manage bank accounts.
 
-**Capabilities:** Open an account, view account details and balances, list customer accounts, and close eligible accounts.
+**Capabilities:** Open an account, view account details and balances, and list customer accounts.
 
 **Functional use cases:**
 
 - **UC02.1 — Open account:** Open an account for an active customer with an initial zero balance.
 - **UC02.2 — View account details:** Inspect account information and current balance.
 - **UC02.3 — List customer accounts:** List accounts associated with a customer.
-- **UC02.4 — Close account:** Close an eligible account while preserving historical records.
+- ~~**UC02.4 — Close account:** Close an eligible account while preserving historical records.~~
 
-**Main rules:** An account must have at least one holder; a new account starts with zero balance; an account cannot be closed while it has funds or pending operations; closed accounts remain available for historical consultation.
+**Main rules:** An account must have at least one holder and a new account starts with zero balance.
 
-**Acceptance criteria:** An active customer can open an account and inspect it. Closing an ineligible account is rejected without changing its state.
+**Acceptance criteria:** An active customer can open an account and inspect it.
 
-## UC03 — Joint Account Holders
+## ~~UC03 — Joint Account Holders (deferred)~~
 
 **Goal:** Support accounts owned by more than one customer.
 
 **Capabilities:** Add an existing customer as a co-holder, view all holders, and remove a holder when permitted.
 
-**Functional use cases:**
+**Functional use cases (deferred):**
 
 - **UC03.1 — Add co-holder:** Add an existing customer as an account co-holder.
 - **UC03.2 — View account holders:** List all holders of an account.
@@ -86,14 +87,14 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Goal:** Allow a customer to use a debit card linked to an account.
 
-**Capabilities:** Issue a card, view its status and linked account, block a card, and reactivate it when permitted.
+**Capabilities:** Issue a card, view its status and linked account, and block a card.
 
 **Functional use cases:**
 
 - **UC05.1 — Issue debit card:** Associate a card with an eligible account.
 - **UC05.2 — View card status:** Inspect card status and linked account.
 - **UC05.3 — Block card:** Prevent new purchase authorizations.
-- **UC05.4 — Reactivate card:** Restore a blocked card when permitted.
+- ~~**UC05.4 — Reactivate card:** Restore a blocked card when permitted.~~
 
 **Main rules:** A card must belong to an eligible account; blocked cards cannot authorize new purchases; a debit card does not have a separate stored balance.
 
@@ -103,7 +104,7 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Goal:** Simulate card payments, delayed settlement, and refunds.
 
-**Capabilities:** Authorize a purchase, reserve available funds, confirm or reject its settlement, view purchases, and process eligible refunds.
+**Capabilities:** Authorize a purchase, reserve available funds, confirm or reject its settlement, and view purchases.
 
 **Functional use cases:**
 
@@ -111,13 +112,13 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 - **UC06.2 — Confirm settlement:** Settle an authorized purchase asynchronously via Kafka.
 - **UC06.3 — Reject settlement:** Reject a pending purchase and release its reservation as appropriate.
 - **UC06.4 — View purchases:** List purchases for a card or account.
-- **UC06.5 — Process refund:** Refund an eligible purchase partially or fully.
+- ~~**UC06.5 — Process refund:** Refund an eligible purchase partially or fully.~~
 
-**Main rules:** A purchase requires an active card and sufficient available funds; authorization and final settlement are separate states; funds must not be debited twice; refunds must refer to an existing purchase and cannot exceed the refundable amount.
+**Main rules:** A purchase requires an active card and sufficient available funds; authorization and final settlement are separate states; funds must not be debited twice.
 
-**Acceptance criteria:** A purchase becomes pending after authorization, later settles through asynchronous processing, and may be partially or fully refunded. Duplicate and failed events must not corrupt balances.
+**Acceptance criteria:** A purchase becomes pending after authorization and later settles through asynchronous processing. Duplicate and failed events must not corrupt balances.
 
-## Supporting Feature — Branch Activity Simulator
+## ~~Supporting Feature — Branch Activity Simulator (deferred)~~
 
 **Goal:** Demonstrate the full banking workflow with fictional activity.
 
@@ -145,10 +146,10 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 1. Customer Management
 2. Account Management
-3. Joint Account Holders
-4. Banking Operations
-5. Debit Card Management
-6. Card Purchases and Refunds (Kafka)
-7. Branch Activity Simulator
+3. Banking Operations
+4. Debit Card Management
+5. Card Purchases (Kafka)
+
+Deferred for a later phase: Joint Account Holders, customer deactivation, account closure, card reactivation, refunds, and Branch Activity Simulator.
 
 Detailed endpoints, DTOs, JPA annotations, database columns, exception names, and individual test cases are defined during implementation, not in this scope document.
