@@ -55,4 +55,9 @@ public class JpaCustomerRepository implements CustomerRepository {
     public java.util.Optional<Customer> findById(Long id) {
         return repository.findById(id);
     }
+
+    @Override
+    public boolean existsById(Long id) {
+        return repository.existsById(id);
+    }
 }
