@@ -9,27 +9,27 @@ import java.util.List;
 public record AccountResponse(
         Long id,
         String accountNumber,
+        Long holderCustomerId,
         BigDecimal balance,
         String currency,
         String status,
         LocalDateTime createdAt,
-        LocalDateTime closedAt,
-        List<Long> holderCustomerIds) {
+        LocalDateTime closedAt) {
 
     public static AccountResponse from(Account account) {
-        List<Long> holderCustomerIds = account.getAccountHolders().stream()
-                .map(holder -> holder.getCustomer().getId())
-                .toList();
+        Long holderCustomerId = account.getAccountHolders().isEmpty()
+                ? null
+                : account.getAccountHolders().get(0).getCustomer().getId();
 
         return new AccountResponse(
                 account.getId(),
                 account.getAccountNumber(),
+                holderCustomerId,
                 account.getBalance(),
                 account.getCurrency(),
                 account.getStatus().name(),
                 account.getCreatedAt(),
-                account.getClosedAt(),
-                holderCustomerIds
+                account.getClosedAt()
         );
     }
 }
