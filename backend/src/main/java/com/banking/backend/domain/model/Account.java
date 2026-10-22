@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "accounts")
@@ -54,6 +55,21 @@ public class Account {
         this.currency = "EUR";
         this.status = AccountStatus.ACTIVE;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public static Account openForCustomer(Customer customer, String role) {
+        Account account = new Account(generateAccountNumber());
+        account.addHolder(customer, role);
+        return account;
+    }
+
+    private static String generateAccountNumber() {
+        return "ES" + UUID.randomUUID().toString().replace("-", "").substring(0, 30).toUpperCase();
+    }
+
+    private void addHolder(Customer customer, String role) {
+        AccountHolder holder = new AccountHolder(this, customer, role);
+        this.accountHolders.add(holder);
     }
 
     public Long getId() {

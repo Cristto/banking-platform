@@ -50,4 +50,9 @@ public class JpaCustomerRepository implements CustomerRepository {
                 .findByDocumentNumberContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrderByLastNameAscFirstNameAscIdAsc(
                         query, query, query);
     }
+
+    @Override
+    public java.util.Optional<Customer> findById(Long id) {
+        return repository.findById(id);
+    }
 }
