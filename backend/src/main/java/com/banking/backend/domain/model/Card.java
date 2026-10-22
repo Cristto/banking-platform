@@ -2,6 +2,8 @@ package com.banking.backend.domain.model;
 
 import com.banking.backend.domain.enums.CardStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import java.sql.Types;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ public class Card {
     @Column(name = "card_reference", nullable = false, unique = true, length = 50)
     private String cardReference;
 
+    @JdbcTypeCode(Types.CHAR)
     @Column(length = 4)
     private String lastFour;
 

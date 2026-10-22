@@ -1,0 +1,8 @@
+{
+  "version": "1",
+  "name": "Banking Platform",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

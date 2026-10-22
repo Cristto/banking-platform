@@ -1,0 +1,24 @@
+meta {
+  name: Invalid Customer
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8081/api/customers
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "documentNumber": "",
+    "firstName": "",
+    "lastName": "",
+    "email": "not-an-email"
+  }
+}
