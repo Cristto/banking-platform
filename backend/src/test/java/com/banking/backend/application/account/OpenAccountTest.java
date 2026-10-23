@@ -1,5 +1,6 @@
 package com.banking.backend.application.account;
 
+import com.banking.backend.domain.exception.CustomerInactiveException;
 import com.banking.backend.domain.exception.CustomerNotFoundException;
 import com.banking.backend.domain.enums.AccountStatus;
 import com.banking.backend.domain.enums.CustomerStatus;
@@ -68,7 +69,7 @@ class OpenAccountTest {
         inactiveCustomer.setStatus(CustomerStatus.INACTIVE);
         when(customers.findById(2L)).thenReturn(Optional.of(inactiveCustomer));
 
-        assertThrows(IllegalArgumentException.class, () -> openAccount.execute(new OpenAccountCommand(2L, "OWNER")));
+        assertThrows(CustomerInactiveException.class, () -> openAccount.execute(new OpenAccountCommand(2L, "OWNER")));
 
         verify(customers).findById(2L);
         verify(accounts, never()).saveWithHolder(any(), any(), any());

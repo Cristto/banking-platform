@@ -1,5 +1,6 @@
 package com.banking.backend.application.account;
 
+import com.banking.backend.domain.exception.CustomerInactiveException;
 import com.banking.backend.domain.exception.CustomerNotFoundException;
 import com.banking.backend.domain.model.Account;
 import com.banking.backend.domain.model.Customer;
@@ -26,7 +27,7 @@ public class OpenAccount {
                 .orElseThrow(() -> new CustomerNotFoundException(command.customerId()));
 
         if (customer.getStatus() != com.banking.backend.domain.enums.CustomerStatus.ACTIVE) {
-            throw new IllegalArgumentException("Only active customers can open accounts");
+            throw new CustomerInactiveException(command.customerId());
         }
 
         Account account = Account.openForCustomer(customer, command.role());
