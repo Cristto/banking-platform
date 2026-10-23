@@ -1,6 +1,6 @@
 package com.banking.backend.application.account;
 
-import com.banking.backend.domain.exception.CustomerNotFoundException;
+import com.banking.backend.domain.exception.AccountNotFoundException;
 import com.banking.backend.domain.model.Account;
 import com.banking.backend.domain.model.AccountHolder;
 import com.banking.backend.domain.model.Customer;
@@ -46,7 +46,7 @@ class GetAccountTest {
     void throwsWhenAccountDoesNotExist() {
         when(accounts.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(CustomerNotFoundException.class, () -> getAccount.execute(new GetAccountCommand(999L)));
+        assertThrows(AccountNotFoundException.class, () -> getAccount.execute(new GetAccountCommand(999L)));
 
         verify(accounts).findById(999L);
     }
