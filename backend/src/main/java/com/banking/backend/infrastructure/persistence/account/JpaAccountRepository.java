@@ -1,6 +1,7 @@
 package com.banking.backend.infrastructure.persistence.account;
 
 import com.banking.backend.domain.model.Account;
+import com.banking.backend.domain.model.AccountHolder;
 import com.banking.backend.domain.model.Customer;
 import com.banking.backend.domain.repository.AccountRepository;
 
@@ -13,9 +14,12 @@ import java.util.Optional;
 public class JpaAccountRepository implements AccountRepository {
 
     private final SpringDataAccountRepository springDataRepository;
+    private final SpringDataAccountHolderRepository accountHolderRepository;
 
-    public JpaAccountRepository(SpringDataAccountRepository springDataRepository) {
+    public JpaAccountRepository(SpringDataAccountRepository springDataRepository,
+                                SpringDataAccountHolderRepository accountHolderRepository) {
         this.springDataRepository = springDataRepository;
+        this.accountHolderRepository = accountHolderRepository;
     }
 
     @Override
@@ -30,15 +34,23 @@ public class JpaAccountRepository implements AccountRepository {
 
     @Override
     public List<Account> findByCustomerId(Long customerId) {
-        // Delegates to Spring Data — placeholder for future implementation
-        // using a custom query on account_holders
-        return List.of();
+        List<AccountHolder> holders = accountHolderRepository.findByCustomerId(customerId);
+
+        if (holders.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> accountIds = holders.stream()
+                .map(holder -> holder.getAccount().getId())
+                .distinct()
+                .toList();
+
+        return springDataRepository.findAllById(accountIds);
     }
 
     @Override
     public boolean existsByCustomerId(Long customerId) {
-        // Delegates to Spring Data — placeholder for future implementation
-        return false;
+        return accountHolderRepository.existsByCustomerId(customerId);
     }
 
     @Override
