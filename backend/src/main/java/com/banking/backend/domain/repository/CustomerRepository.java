@@ -10,4 +10,6 @@ public interface CustomerRepository {
     Customer save(Customer customer);
     List<Customer> findAll();
     List<Customer> search(String query);
+    java.util.Optional<Customer> findById(Long id);
+    boolean existsById(Long id);
 }

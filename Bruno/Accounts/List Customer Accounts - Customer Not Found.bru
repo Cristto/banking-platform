@@ -1,0 +1,14 @@
+meta {
+  name: List Customer Accounts - Customer Not Found
+  type: http
+  seq: 9
+}
+
+get {
+  url: http://localhost:8081/api/accounts/customers/999
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}

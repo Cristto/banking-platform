@@ -1,0 +1,98 @@
+package com.banking.backend.application.account;
+
+import com.banking.backend.domain.exception.CustomerInactiveException;
+import com.banking.backend.domain.exception.CustomerNotFoundException;
+import com.banking.backend.domain.enums.AccountStatus;
+import com.banking.backend.domain.enums.CustomerStatus;
+import com.banking.backend.domain.model.Account;
+import com.banking.backend.domain.model.Customer;
+import com.banking.backend.domain.repository.AccountRepository;
+import com.banking.backend.domain.repository.CustomerRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+class OpenAccountTest {
+
+    private CustomerRepository customers;
+    private AccountRepository accounts;
+    private OpenAccount openAccount;
+
+    @BeforeEach
+    void setUp() {
+        customers = mock(CustomerRepository.class);
+        accounts = mock(AccountRepository.class);
+        openAccount = new OpenAccount(customers, accounts);
+    }
+
+    @Test
+    void opensAccountWhenCustomerExistsAndIsActive() {
+        Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
+        when(customers.findById(1L)).thenReturn(Optional.of(customer));
+
+        Account savedAccount = createAccount("ES123456789012345678901234567890", customer);
+        when(accounts.save(any(Account.class))).thenReturn(savedAccount);
+
+        Account result = openAccount.execute(new OpenAccountCommand(1L));
+
+        assertSame(savedAccount, result);
+        assertEquals("ES123456789012345678901234567890", result.getAccountNumber());
+        assertEquals(BigDecimal.ZERO, result.getBalance());
+        assertEquals("EUR", result.getCurrency());
+        assertEquals(AccountStatus.ACTIVE, result.getStatus());
+        assertEquals(customer.getId(), result.getCustomerId());
+        verify(customers).findById(1L);
+        verify(accounts).save(any(Account.class));
+    }
+
+    @Test
+    void throwsWhenCustomerDoesNotExist() {
+        when(customers.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(CustomerNotFoundException.class, () -> openAccount.execute(new OpenAccountCommand(999L)));
+
+        verify(customers).findById(999L);
+        verify(accounts, never()).save(any());
+    }
+
+    @Test
+    void throwsWhenCustomerIsNotActive() {
+        Customer inactiveCustomer = new Customer("AB123", "Luis", "Martinez", "luis@example.com");
+        inactiveCustomer.setStatus(CustomerStatus.INACTIVE);
+        when(customers.findById(2L)).thenReturn(Optional.of(inactiveCustomer));
+
+        assertThrows(CustomerInactiveException.class, () -> openAccount.execute(new OpenAccountCommand(2L)));
+
+        verify(customers).findById(2L);
+        verify(accounts, never()).save(any());
+    }
+
+    @Test
+    void returnsAccountWithZeroBalanceAndDefaultCurrency() {
+        Customer customer = new Customer("CD456", "Pedro", "Lopez", "pedro@example.com");
+        when(customers.findById(3L)).thenReturn(Optional.of(customer));
+
+        Account savedAccount = createAccount("ES987654321098765432109876543210", customer);
+        when(accounts.save(any(Account.class))).thenReturn(savedAccount);
+
+        Account result = openAccount.execute(new OpenAccountCommand(3L));
+
+        assertEquals(BigDecimal.ZERO, result.getBalance());
+        assertEquals("EUR", result.getCurrency());
+        assertEquals(AccountStatus.ACTIVE, result.getStatus());
+        assertEquals(customer.getId(), result.getCustomerId());
+        assertNotNull(result.getCreatedAt());
+    }
+
+    private Account createAccount(String accountNumber, Customer customer) {
+        Account account = new Account(accountNumber);
+        account.setCustomerId(customer.getId());
+        return account;
+    }
+}

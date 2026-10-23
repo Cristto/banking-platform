@@ -41,9 +41,6 @@ public class Customer {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "customer")
-    private List<AccountHolder> accountHolders = new ArrayList<>();
-
-    @OneToMany(mappedBy = "customer")
     private List<Card> cards = new ArrayList<>();
 
     public Customer() {
@@ -102,10 +99,6 @@ public class Customer {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public List<AccountHolder> getAccountHolders() {
-        return accountHolders;
     }
 
     public List<Card> getCards() {
