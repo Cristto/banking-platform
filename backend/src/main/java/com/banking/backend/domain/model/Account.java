@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "accounts")
@@ -39,8 +40,8 @@ public class Account {
     @Column(nullable = false)
     private Long version = 0L;
 
-    @OneToMany(mappedBy = "account")
-    private List<AccountHolder> accountHolders = new ArrayList<>();
+    @Column(name = "customer_id")
+    private Long customerId;
 
     @OneToMany(mappedBy = "account")
     private List<Card> cards = new ArrayList<>();
@@ -54,6 +55,16 @@ public class Account {
         this.currency = "EUR";
         this.status = AccountStatus.ACTIVE;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public static Account openForCustomer(Customer customer) {
+        Account account = new Account(generateAccountNumber());
+        account.setCustomerId(customer.getId());
+        return account;
+    }
+
+    private static String generateAccountNumber() {
+        return "ES" + UUID.randomUUID().toString().replace("-", "").substring(0, 30).toUpperCase();
     }
 
     public Long getId() {
@@ -100,8 +111,12 @@ public class Account {
         return version;
     }
 
-    public List<AccountHolder> getAccountHolders() {
-        return accountHolders;
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public List<Card> getCards() {

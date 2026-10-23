@@ -1,0 +1,21 @@
+meta {
+  name: Open Account - Customer Not Found
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8081/api/accounts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "customerId": "{{nonExistentCustomerId}}"
+  }
+}
