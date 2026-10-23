@@ -40,8 +40,8 @@ public class Account {
     @Column(nullable = false)
     private Long version = 0L;
 
-    @OneToMany(mappedBy = "account")
-    private List<AccountHolder> accountHolders = new ArrayList<>();
+    @Column(name = "customer_id")
+    private Long customerId;
 
     @OneToMany(mappedBy = "account")
     private List<Card> cards = new ArrayList<>();
@@ -57,19 +57,14 @@ public class Account {
         this.createdAt = LocalDateTime.now();
     }
 
-    public static Account openForCustomer(Customer customer, String role) {
+    public static Account openForCustomer(Customer customer) {
         Account account = new Account(generateAccountNumber());
-        account.addHolder(customer, role);
+        account.setCustomerId(customer.getId());
         return account;
     }
 
     private static String generateAccountNumber() {
         return "ES" + UUID.randomUUID().toString().replace("-", "").substring(0, 30).toUpperCase();
-    }
-
-    private void addHolder(Customer customer, String role) {
-        AccountHolder holder = new AccountHolder(this, customer, role);
-        this.accountHolders.add(holder);
     }
 
     public Long getId() {
@@ -116,8 +111,12 @@ public class Account {
         return version;
     }
 
-    public List<AccountHolder> getAccountHolders() {
-        return accountHolders;
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public List<Card> getCards() {
