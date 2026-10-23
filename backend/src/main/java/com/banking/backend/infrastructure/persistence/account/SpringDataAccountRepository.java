@@ -9,4 +9,8 @@ import java.util.Optional;
 public interface SpringDataAccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findById(Long id);
+
+    List<Account> findByCustomerId(Long customerId);
+
+    boolean existsByCustomerId(Long customerId);
 }

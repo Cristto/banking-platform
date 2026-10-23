@@ -1,8 +1,6 @@
 package com.banking.backend.infrastructure.persistence.account;
 
 import com.banking.backend.domain.model.Account;
-import com.banking.backend.domain.model.AccountHolder;
-import com.banking.backend.domain.model.Customer;
 import com.banking.backend.domain.repository.AccountRepository;
 
 import org.springframework.stereotype.Component;
@@ -14,12 +12,9 @@ import java.util.Optional;
 public class JpaAccountRepository implements AccountRepository {
 
     private final SpringDataAccountRepository springDataRepository;
-    private final SpringDataAccountHolderRepository accountHolderRepository;
 
-    public JpaAccountRepository(SpringDataAccountRepository springDataRepository,
-                                SpringDataAccountHolderRepository accountHolderRepository) {
+    public JpaAccountRepository(SpringDataAccountRepository springDataRepository) {
         this.springDataRepository = springDataRepository;
-        this.accountHolderRepository = accountHolderRepository;
     }
 
     @Override
@@ -34,27 +29,11 @@ public class JpaAccountRepository implements AccountRepository {
 
     @Override
     public List<Account> findByCustomerId(Long customerId) {
-        List<AccountHolder> holders = accountHolderRepository.findByCustomerId(customerId);
-
-        if (holders.isEmpty()) {
-            return List.of();
-        }
-
-        List<Long> accountIds = holders.stream()
-                .map(holder -> holder.getAccount().getId())
-                .distinct()
-                .toList();
-
-        return springDataRepository.findAllById(accountIds);
+        return springDataRepository.findByCustomerId(customerId);
     }
 
     @Override
     public boolean existsByCustomerId(Long customerId) {
-        return accountHolderRepository.existsByCustomerId(customerId);
-    }
-
-    @Override
-    public Account saveWithHolder(Account account, Customer customer, String role) {
-        return springDataRepository.save(account);
+        return springDataRepository.existsByCustomerId(customerId);
     }
 }

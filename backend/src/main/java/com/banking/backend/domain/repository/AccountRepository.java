@@ -15,6 +15,4 @@ public interface AccountRepository {
     List<Account> findByCustomerId(Long customerId);
 
     boolean existsByCustomerId(Long customerId);
-
-    Account saveWithHolder(Account account, Customer customer, String role);
 }

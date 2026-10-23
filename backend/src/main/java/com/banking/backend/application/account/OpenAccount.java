@@ -30,7 +30,7 @@ public class OpenAccount {
             throw new CustomerInactiveException(command.customerId());
         }
 
-        Account account = Account.openForCustomer(customer, command.role());
-        return accounts.saveWithHolder(account, customer, command.role());
+        Account account = Account.openForCustomer(customer);
+        return accounts.save(account);
     }
 }
