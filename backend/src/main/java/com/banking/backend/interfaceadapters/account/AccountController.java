@@ -1,5 +1,7 @@
 package com.banking.backend.interfaceadapters.account;
 
+import com.banking.backend.application.account.DepositFunds;
+import com.banking.backend.application.account.DepositFundsCommand;
 import com.banking.backend.application.account.GetAccount;
 import com.banking.backend.application.account.GetAccountCommand;
 import com.banking.backend.application.account.ListCustomerAccounts;
@@ -8,6 +10,8 @@ import com.banking.backend.application.account.OpenAccount;
 import com.banking.backend.application.account.OpenAccountCommand;
 import com.banking.backend.domain.model.Account;
 import com.banking.backend.interfaceadapters.account.AccountResponse;
+import com.banking.backend.interfaceadapters.account.DepositRequest;
+import com.banking.backend.interfaceadapters.account.DepositResponse;
 import com.banking.backend.interfaceadapters.account.OpenAccountRequest;
 
 import org.springframework.http.HttpStatus;
@@ -28,11 +32,13 @@ public class AccountController {
     private final OpenAccount openAccount;
     private final GetAccount getAccount;
     private final ListCustomerAccounts listAccounts;
+    private final DepositFunds depositFunds;
 
-    public AccountController(OpenAccount openAccount, GetAccount getAccount, ListCustomerAccounts listAccounts) {
+    public AccountController(OpenAccount openAccount, GetAccount getAccount, ListCustomerAccounts listAccounts, DepositFunds depositFunds) {
         this.openAccount = openAccount;
         this.getAccount = getAccount;
         this.listAccounts = listAccounts;
+        this.depositFunds = depositFunds;
     }
 
     @PostMapping
@@ -52,5 +58,11 @@ public class AccountController {
     public List<AccountResponse> listCustomerAccounts(@PathVariable Long customerId) {
         List<Account> accounts = listAccounts.execute(new ListCustomerAccountsCommand(customerId));
         return accounts.stream().map(AccountResponse::from).toList();
+    }
+
+    @PostMapping("/{id}/deposits")
+    @ResponseStatus(HttpStatus.CREATED)
+    public DepositResponse deposit(@PathVariable Long id, @RequestBody DepositRequest request) {
+        return depositFunds.execute(new DepositFundsCommand(id, request.idempotencyKey(), request.amount()));
     }
 }

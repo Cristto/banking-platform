@@ -1,5 +1,6 @@
 package com.banking.backend.interfaceadapters.account;
 
+import com.banking.backend.domain.exception.AccountInactiveException;
 import com.banking.backend.domain.exception.AccountNotFoundException;
 import com.banking.backend.domain.exception.CustomerInactiveException;
 import com.banking.backend.domain.exception.CustomerNotFoundException;
@@ -20,6 +21,11 @@ public class AccountExceptionHandler {
     @ExceptionHandler(AccountNotFoundException.class)
     public ProblemDetail handle(AccountNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountInactiveException.class)
+    public ProblemDetail handle(AccountInactiveException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(CustomerInactiveException.class)
