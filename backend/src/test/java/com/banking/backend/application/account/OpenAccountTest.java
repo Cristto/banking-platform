@@ -5,7 +5,6 @@ import com.banking.backend.domain.exception.CustomerNotFoundException;
 import com.banking.backend.domain.enums.AccountStatus;
 import com.banking.backend.domain.enums.CustomerStatus;
 import com.banking.backend.domain.model.Account;
-import com.banking.backend.domain.model.AccountHolder;
 import com.banking.backend.domain.model.Customer;
 import com.banking.backend.domain.repository.AccountRepository;
 import com.banking.backend.domain.repository.CustomerRepository;
@@ -37,30 +36,29 @@ class OpenAccountTest {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
         when(customers.findById(1L)).thenReturn(Optional.of(customer));
 
-        Account savedAccount = createAccountWithHolder("ES123456789012345678901234567890", customer, "OWNER");
-        when(accounts.saveWithHolder(any(Account.class), eq(customer), eq("OWNER"))).thenReturn(savedAccount);
+        Account savedAccount = createAccount("ES123456789012345678901234567890", customer);
+        when(accounts.save(any(Account.class))).thenReturn(savedAccount);
 
-        Account result = openAccount.execute(new OpenAccountCommand(1L, "OWNER"));
+        Account result = openAccount.execute(new OpenAccountCommand(1L));
 
         assertSame(savedAccount, result);
         assertEquals("ES123456789012345678901234567890", result.getAccountNumber());
         assertEquals(BigDecimal.ZERO, result.getBalance());
         assertEquals("EUR", result.getCurrency());
         assertEquals(AccountStatus.ACTIVE, result.getStatus());
-        assertEquals(1, result.getAccountHolders().size());
-        assertEquals("OWNER", result.getAccountHolders().get(0).getRole());
+        assertEquals(customer.getId(), result.getCustomerId());
         verify(customers).findById(1L);
-        verify(accounts).saveWithHolder(any(Account.class), eq(customer), eq("OWNER"));
+        verify(accounts).save(any(Account.class));
     }
 
     @Test
     void throwsWhenCustomerDoesNotExist() {
         when(customers.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(CustomerNotFoundException.class, () -> openAccount.execute(new OpenAccountCommand(999L, "OWNER")));
+        assertThrows(CustomerNotFoundException.class, () -> openAccount.execute(new OpenAccountCommand(999L)));
 
         verify(customers).findById(999L);
-        verify(accounts, never()).saveWithHolder(any(), any(), any());
+        verify(accounts, never()).save(any());
     }
 
     @Test
@@ -69,10 +67,10 @@ class OpenAccountTest {
         inactiveCustomer.setStatus(CustomerStatus.INACTIVE);
         when(customers.findById(2L)).thenReturn(Optional.of(inactiveCustomer));
 
-        assertThrows(CustomerInactiveException.class, () -> openAccount.execute(new OpenAccountCommand(2L, "OWNER")));
+        assertThrows(CustomerInactiveException.class, () -> openAccount.execute(new OpenAccountCommand(2L)));
 
         verify(customers).findById(2L);
-        verify(accounts, never()).saveWithHolder(any(), any(), any());
+        verify(accounts, never()).save(any());
     }
 
     @Test
@@ -80,21 +78,21 @@ class OpenAccountTest {
         Customer customer = new Customer("CD456", "Pedro", "Lopez", "pedro@example.com");
         when(customers.findById(3L)).thenReturn(Optional.of(customer));
 
-        Account savedAccount = createAccountWithHolder("ES987654321098765432109876543210", customer, "OWNER");
-        when(accounts.saveWithHolder(any(Account.class), any(Customer.class), eq("OWNER"))).thenReturn(savedAccount);
+        Account savedAccount = createAccount("ES987654321098765432109876543210", customer);
+        when(accounts.save(any(Account.class))).thenReturn(savedAccount);
 
-        Account result = openAccount.execute(new OpenAccountCommand(3L, "OWNER"));
+        Account result = openAccount.execute(new OpenAccountCommand(3L));
 
         assertEquals(BigDecimal.ZERO, result.getBalance());
         assertEquals("EUR", result.getCurrency());
         assertEquals(AccountStatus.ACTIVE, result.getStatus());
+        assertEquals(customer.getId(), result.getCustomerId());
         assertNotNull(result.getCreatedAt());
     }
 
-    private Account createAccountWithHolder(String accountNumber, Customer customer, String role) {
+    private Account createAccount(String accountNumber, Customer customer) {
         Account account = new Account(accountNumber);
-        AccountHolder holder = new AccountHolder(account, customer, role);
-        account.getAccountHolders().add(holder);
+        account.setCustomerId(customer.getId());
         return account;
     }
 }

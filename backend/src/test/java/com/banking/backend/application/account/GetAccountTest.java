@@ -2,7 +2,6 @@ package com.banking.backend.application.account;
 
 import com.banking.backend.domain.exception.AccountNotFoundException;
 import com.banking.backend.domain.model.Account;
-import com.banking.backend.domain.model.AccountHolder;
 import com.banking.backend.domain.model.Customer;
 import com.banking.backend.domain.repository.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,7 @@ class GetAccountTest {
     @Test
     void returnsAccountDetailsWhenAccountExists() {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
-        Account account = createAccountWithHolder("ES123456789012345678901234567890", customer, "OWNER");
+        Account account = createAccount("ES123456789012345678901234567890", customer);
         account.setBalance(new BigDecimal("1500.50"));
         when(accounts.findById(1L)).thenReturn(Optional.of(account));
 
@@ -38,7 +37,7 @@ class GetAccountTest {
         assertEquals("ES123456789012345678901234567890", result.getAccountNumber());
         assertEquals(new BigDecimal("1500.50"), result.getBalance());
         assertEquals("EUR", result.getCurrency());
-        assertEquals(1, result.getAccountHolders().size());
+        assertEquals(customer.getId(), result.getCustomerId());
         verify(accounts).findById(1L);
     }
 
@@ -54,7 +53,7 @@ class GetAccountTest {
     @Test
     void returnsAccountWithZeroBalanceWhenNoOperationsPerformed() {
         Customer customer = new Customer("CD456", "Pedro", "Lopez", "pedro@example.com");
-        Account account = createAccountWithHolder("ES987654321098765432109876543210", customer, "OWNER");
+        Account account = createAccount("ES987654321098765432109876543210", customer);
         when(accounts.findById(2L)).thenReturn(Optional.of(account));
 
         Account result = getAccount.execute(new GetAccountCommand(2L));
@@ -63,10 +62,9 @@ class GetAccountTest {
         assertEquals("EUR", result.getCurrency());
     }
 
-    private Account createAccountWithHolder(String accountNumber, Customer customer, String role) {
+    private Account createAccount(String accountNumber, Customer customer) {
         Account account = new Account(accountNumber);
-        AccountHolder holder = new AccountHolder(account, customer, role);
-        account.getAccountHolders().add(holder);
+        account.setCustomerId(customer.getId());
         return account;
     }
 }

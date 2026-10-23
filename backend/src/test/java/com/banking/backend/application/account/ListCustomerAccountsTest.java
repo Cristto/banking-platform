@@ -2,7 +2,6 @@ package com.banking.backend.application.account;
 
 import com.banking.backend.domain.exception.CustomerNotFoundException;
 import com.banking.backend.domain.model.Account;
-import com.banking.backend.domain.model.AccountHolder;
 import com.banking.backend.domain.model.Customer;
 import com.banking.backend.domain.repository.AccountRepository;
 import com.banking.backend.domain.repository.CustomerRepository;
@@ -45,8 +44,8 @@ class ListCustomerAccountsTest {
     @Test
     void returnsAllAccountsBelongingToCustomer() {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
-        Account account1 = createAccountWithHolder("ES111111111111111111111111111111", customer, "OWNER");
-        Account account2 = createAccountWithHolder("ES222222222222222222222222222222", customer, "OWNER");
+        Account account1 = createAccount("ES111111111111111111111111111111", customer);
+        Account account2 = createAccount("ES222222222222222222222222222222", customer);
         when(customers.existsById(2L)).thenReturn(true);
         when(accounts.findByCustomerId(2L)).thenReturn(List.of(account1, account2));
 
@@ -57,6 +56,7 @@ class ListCustomerAccountsTest {
         assertEquals("ES222222222222222222222222222222", result.get(1).getAccountNumber());
         assertEquals(BigDecimal.ZERO, result.get(0).getBalance());
         assertEquals("EUR", result.get(0).getCurrency());
+        assertEquals(customer.getId(), result.get(0).getCustomerId());
         verify(customers).existsById(2L);
         verify(accounts).findByCustomerId(2L);
     }
@@ -71,10 +71,9 @@ class ListCustomerAccountsTest {
         verify(accounts, never()).findByCustomerId(anyLong());
     }
 
-    private Account createAccountWithHolder(String accountNumber, Customer customer, String role) {
+    private Account createAccount(String accountNumber, Customer customer) {
         Account account = new Account(accountNumber);
-        AccountHolder holder = new AccountHolder(account, customer, role);
-        account.getAccountHolders().add(holder);
+        account.setCustomerId(customer.getId());
         return account;
     }
 }
