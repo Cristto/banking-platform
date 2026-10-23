@@ -1,0 +1,14 @@
+meta {
+  name: Get Account - Zero Balance
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8081/api/accounts/{{zeroBalanceAccountId}}
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
