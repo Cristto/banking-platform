@@ -38,7 +38,7 @@ public class AccountController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse openAccount(@RequestBody OpenAccountRequest request) {
-        Account account = openAccount.execute(new OpenAccountCommand(request.customerId(), request.role()));
+        Account account = openAccount.execute(new OpenAccountCommand(request.customerId()));
         return AccountResponse.from(account);
     }
 

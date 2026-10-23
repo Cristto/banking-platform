@@ -17,14 +17,10 @@ public record AccountResponse(
         LocalDateTime closedAt) {
 
     public static AccountResponse from(Account account) {
-        Long holderCustomerId = account.getAccountHolders().isEmpty()
-                ? null
-                : account.getAccountHolders().get(0).getCustomer().getId();
-
         return new AccountResponse(
                 account.getId(),
                 account.getAccountNumber(),
-                holderCustomerId,
+                account.getCustomerId(),
                 account.getBalance(),
                 account.getCurrency(),
                 account.getStatus().name(),
