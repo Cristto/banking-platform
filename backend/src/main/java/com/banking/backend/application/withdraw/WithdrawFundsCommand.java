@@ -1,13 +1,13 @@
-package com.banking.backend.application.account;
+package com.banking.backend.application.withdraw;
 
 import java.math.BigDecimal;
 
-public record DepositFundsCommand(
+public record WithdrawFundsCommand(
         Long accountId,
         String idempotencyKey,
         BigDecimal amount) {
 
-    public DepositFundsCommand {
+    public WithdrawFundsCommand {
         if (accountId == null) {
             throw new IllegalArgumentException("Account ID must not be null");
         }

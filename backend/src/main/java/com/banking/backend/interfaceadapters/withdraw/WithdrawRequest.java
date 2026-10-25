@@ -1,8 +1,8 @@
-package com.banking.backend.interfaceadapters.account;
+package com.banking.backend.interfaceadapters.withdraw;
 
 import java.math.BigDecimal;
 
-public record DepositRequest(
+public record WithdrawRequest(
         String idempotencyKey,
         BigDecimal amount) {
 }

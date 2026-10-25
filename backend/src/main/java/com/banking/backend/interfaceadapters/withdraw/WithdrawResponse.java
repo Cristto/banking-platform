@@ -1,11 +1,11 @@
-package com.banking.backend.interfaceadapters.account;
+package com.banking.backend.interfaceadapters.withdraw;
 
 import com.banking.backend.domain.model.Transaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record DepositResponse(
+public record WithdrawResponse(
         Long transactionId,
         BigDecimal amount,
         BigDecimal balance,
@@ -13,12 +13,12 @@ public record DepositResponse(
         String status,
         LocalDateTime createdAt) {
 
-    public static DepositResponse from(Transaction transaction, BigDecimal balance) {
-        return new DepositResponse(
+    public static WithdrawResponse from(Transaction transaction, BigDecimal balance) {
+        return new WithdrawResponse(
                 transaction.getId(),
                 transaction.getAmount(),
                 balance,
-                transaction.getDestinationAccount().getCurrency(),
+                transaction.getSourceAccount().getCurrency(),
                 transaction.getStatus().name(),
                 transaction.getCreatedAt()
         );
