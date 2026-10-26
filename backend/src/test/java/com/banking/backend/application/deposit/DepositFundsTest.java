@@ -39,7 +39,7 @@ class DepositFundsTest {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
         Account account = createAccount("ES123456789012345678901234567890", customer);
         account.setBalance(new BigDecimal("100.00"));
-        when(accounts.findById(1L)).thenReturn(Optional.of(account));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(account));
 
         Transaction savedTransaction = createTransaction("tx-001", account, new BigDecimal("50.00"));
         when(transactions.findByIdempotencyKey("key-1")).thenReturn(Optional.empty());
@@ -64,7 +64,7 @@ class DepositFundsTest {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
         Account account = createAccount("ES123456789012345678901234567890", customer);
         account.setBalance(new BigDecimal("200.00"));
-        when(accounts.findById(1L)).thenReturn(Optional.of(account));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(account));
 
         Transaction existingTransaction = createTransaction("tx-002", account, new BigDecimal("25.00"));
         when(transactions.findByIdempotencyKey("key-2")).thenReturn(Optional.of(existingTransaction));
@@ -81,12 +81,12 @@ class DepositFundsTest {
 
     @Test
     void throwsWhenAccountDoesNotExist() {
-        when(accounts.findById(999L)).thenReturn(Optional.empty());
+        when(accounts.findByIdForUpdate(999L)).thenReturn(Optional.empty());
 
         DepositFundsCommand command = new DepositFundsCommand(999L, "key-3", new BigDecimal("100.00"));
 
         assertThrows(AccountNotFoundException.class, () -> depositFunds.execute(command));
-        verify(accounts).findById(999L);
+        verify(accounts).findByIdForUpdate(999L);
         verify(transactions, never()).save(any());
     }
 
@@ -95,12 +95,12 @@ class DepositFundsTest {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
         Account account = createAccount("ES123456789012345678901234567890", customer);
         account.setStatus(AccountStatus.CLOSED);
-        when(accounts.findById(2L)).thenReturn(Optional.of(account));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(account));
 
         DepositFundsCommand command = new DepositFundsCommand(2L, "key-4", new BigDecimal("100.00"));
 
         assertThrows(AccountInactiveException.class, () -> depositFunds.execute(command));
-        verify(accounts).findById(2L);
+        verify(accounts).findByIdForUpdate(2L);
         verify(transactions, never()).save(any());
     }
 
@@ -139,7 +139,7 @@ class DepositFundsTest {
         Customer customer = new Customer("CD456", "Pedro", "Lopez", "pedro@example.com");
         Account account = createAccount("ES987654321098765432109876543210", customer);
         account.setBalance(new BigDecimal("500.00"));
-        when(accounts.findById(3L)).thenReturn(Optional.of(account));
+        when(accounts.findByIdForUpdate(3L)).thenReturn(Optional.of(account));
 
         Transaction savedTransaction = createTransaction("tx-003", account, new BigDecimal("100.00"));
         savedTransaction.setIdempotencyKey("key-9");

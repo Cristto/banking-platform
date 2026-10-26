@@ -12,6 +12,8 @@ public interface AccountRepository {
 
     Optional<Account> findById(Long id);
 
+    Optional<Account> findByIdForUpdate(Long id);
+
     List<Account> findByCustomerId(Long customerId);
 
     boolean existsByCustomerId(Long customerId);

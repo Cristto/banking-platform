@@ -31,17 +31,17 @@ public class DepositFunds {
 
     @Transactional
     public DepositResponse execute(DepositFundsCommand command) {
-        Account account = accounts.findById(command.accountId())
+        Account account = accounts.findByIdForUpdate(command.accountId())
                 .orElseThrow(() -> new AccountNotFoundException(command.accountId()));
-
-        if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new AccountInactiveException(account.getId());
-        }
 
         Optional<Transaction> existingOpt = transactions.findByIdempotencyKey(command.idempotencyKey());
         if (existingOpt.isPresent()) {
             Transaction existing = existingOpt.get();
             return DepositResponse.from(existing, existing.getDestinationAccount().getBalance());
+        }
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountInactiveException(account.getId());
         }
 
         Transaction transaction = createDepositTransaction(command, account);
