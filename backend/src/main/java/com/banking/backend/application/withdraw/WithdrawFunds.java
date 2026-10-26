@@ -11,7 +11,6 @@ import com.banking.backend.domain.model.Transaction;
 import com.banking.backend.domain.repository.AccountRepository;
 import com.banking.backend.domain.repository.TransactionRepository;
 import com.banking.backend.interfaceadapters.withdraw.WithdrawResponse;
-import jakarta.persistence.OptimisticLockException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +22,6 @@ import java.util.UUID;
 @Service
 public class WithdrawFunds {
 
-    private static final int MAX_RETRIES = 3;
-
     private final AccountRepository accounts;
     private final TransactionRepository transactions;
 
@@ -35,36 +32,26 @@ public class WithdrawFunds {
 
     @Transactional
     public WithdrawResponse execute(WithdrawFundsCommand command) {
-        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
-            Account account = accounts.findById(command.accountId())
-                    .orElseThrow(() -> new AccountNotFoundException(command.accountId()));
+        Account account = accounts.findByIdForUpdate(command.accountId())
+                .orElseThrow(() -> new AccountNotFoundException(command.accountId()));
 
-            if (account.getStatus() != AccountStatus.ACTIVE) {
-                throw new AccountInactiveException(account.getId());
-            }
-
-            Optional<Transaction> existingOpt = transactions.findByIdempotencyKey(command.idempotencyKey());
-            if (existingOpt.isPresent()) {
-                Transaction existing = existingOpt.get();
-                return WithdrawResponse.from(existing, existing.getSourceAccount().getBalance());
-            }
-
-            checkSufficientBalance(account, command.amount());
-
-            Transaction transaction = createWithdrawalTransaction(command, account);
-            updateAccountBalance(account, command.amount());
-
-            try {
-                transaction = transactions.save(transaction);
-                return WithdrawResponse.from(transaction, account.getBalance());
-            } catch (OptimisticLockException e) {
-                // Another thread modified the account; retry with fresh state
-                if (attempt == MAX_RETRIES - 1) {
-                    throw e;
-                }
-            }
+        Optional<Transaction> existingOpt = transactions.findByIdempotencyKey(command.idempotencyKey());
+        if (existingOpt.isPresent()) {
+            Transaction existing = existingOpt.get();
+            return WithdrawResponse.from(existing, existing.getSourceAccount().getBalance());
         }
-        throw new IllegalStateException("Unreachable");
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountInactiveException(account.getId());
+        }
+
+        checkSufficientBalance(account, command.amount());
+
+        Transaction transaction = createWithdrawalTransaction(command, account);
+        updateAccountBalance(account, command.amount());
+
+        transaction = transactions.save(transaction);
+        return WithdrawResponse.from(transaction, account.getBalance());
     }
 
     private void checkSufficientBalance(Account account, BigDecimal amount) {
