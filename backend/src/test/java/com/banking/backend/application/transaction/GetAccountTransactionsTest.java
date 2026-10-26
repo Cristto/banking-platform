@@ -1,4 +1,4 @@
-package com.banking.backend.application.account;
+package com.banking.backend.application.transaction;
 
 import com.banking.backend.domain.enums.AccountStatus;
 import com.banking.backend.domain.enums.TransactionStatus;
@@ -9,7 +9,7 @@ import com.banking.backend.domain.model.Customer;
 import com.banking.backend.domain.model.Transaction;
 import com.banking.backend.domain.repository.AccountRepository;
 import com.banking.backend.domain.repository.TransactionRepository;
-import com.banking.backend.interfaceadapters.account.TransactionResponse;
+import com.banking.backend.interfaceadapters.transaction.TransactionResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;

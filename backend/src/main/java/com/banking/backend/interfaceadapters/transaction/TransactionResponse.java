@@ -1,4 +1,4 @@
-package com.banking.backend.interfaceadapters.account;
+package com.banking.backend.interfaceadapters.transaction;
 
 import com.banking.backend.domain.model.Transaction;
 import com.banking.backend.domain.enums.TransactionStatus;

@@ -1,4 +1,4 @@
-package com.banking.backend.application.account;
+package com.banking.backend.application.transaction;
 
 import org.springframework.data.domain.Pageable;
 
