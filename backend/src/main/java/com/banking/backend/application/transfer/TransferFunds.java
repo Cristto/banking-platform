@@ -13,7 +13,6 @@ import com.banking.backend.domain.model.Transaction;
 import com.banking.backend.domain.repository.AccountRepository;
 import com.banking.backend.domain.repository.TransactionRepository;
 import com.banking.backend.interfaceadapters.transfer.TransferResponse;
-import jakarta.persistence.OptimisticLockException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +24,6 @@ import java.util.UUID;
 @Service
 public class TransferFunds {
 
-    private static final int MAX_RETRIES = 3;
-
     private final AccountRepository accounts;
     private final TransactionRepository transactions;
 
@@ -37,46 +34,48 @@ public class TransferFunds {
 
     @Transactional
     public TransferResponse execute(TransferFundsCommand command) {
-        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
-            Account source = accounts.findById(command.sourceAccountId())
-                    .orElseThrow(() -> new AccountNotFoundException(command.sourceAccountId()));
+        validateSameAccount(command.sourceAccountId(), command.destinationAccountId());
 
-            Account destination = accounts.findById(command.destinationAccountId())
-                    .orElseThrow(() -> new AccountNotFoundException(command.destinationAccountId()));
+        Long firstAccountId = Math.min(command.sourceAccountId(), command.destinationAccountId());
+        Long secondAccountId = Math.max(command.sourceAccountId(), command.destinationAccountId());
+        Account firstAccount = accounts.findByIdForUpdate(firstAccountId)
+                .orElseThrow(() -> new AccountNotFoundException(firstAccountId));
+        Account secondAccount = accounts.findByIdForUpdate(secondAccountId)
+                .orElseThrow(() -> new AccountNotFoundException(secondAccountId));
 
-            validateSameAccount(source.getId(), destination.getId());
-            validateSameCurrency(source, destination);
-            validateSourceActive(source);
-            validateDestinationActive(destination);
-            validateSufficientFunds(source, command.amount());
+        Account source = command.sourceAccountId().equals(firstAccountId) ? firstAccount : secondAccount;
+        Account destination = command.destinationAccountId().equals(firstAccountId) ? firstAccount : secondAccount;
 
-            // Check idempotency at the start of each retry
-            Optional<Transaction> existingOpt = transactions.findByIdempotencyKey(command.idempotencyKey());
-            if (existingOpt.isPresent()) {
-                Transaction existing = existingOpt.get();
+        Optional<Transaction> existingOpt = transactions.findByIdempotencyKey(command.idempotencyKey());
+        if (existingOpt.isPresent()) {
+            Transaction existing = existingOpt.get();
+            if (isSameTransfer(existing, command)) {
                 return TransferResponse.from(existing, existing.getSourceAccount().getBalance(),
                         existing.getDestinationAccount().getBalance());
             }
-
-            String transferId = UUID.randomUUID().toString();
-
-            Transaction debit = createDebitTransaction(transferId, command, source);
-            Transaction credit = createCreditTransaction(transferId, command, destination);
-
-            updateSourceBalance(source, command.amount());
-            updateDestinationBalance(destination, command.amount());
-
-            try {
-                transactions.save(debit);
-                transactions.save(credit);
-                return TransferResponse.from(debit, source.getBalance(), destination.getBalance());
-            } catch (OptimisticLockException e) {
-                if (attempt == MAX_RETRIES - 1) {
-                    throw e;
-                }
-            }
+            throw new IllegalArgumentException("Idempotency key is already used for a different transfer");
         }
-        throw new IllegalStateException("Unreachable");
+
+        validateSameCurrency(source, destination);
+        validateSourceActive(source);
+        validateDestinationActive(destination);
+        validateSufficientFunds(source, command.amount());
+
+        Transaction transfer = createTransferTransaction(command, source, destination);
+        updateSourceBalance(source, command.amount());
+        updateDestinationBalance(destination, command.amount());
+
+        transfer = transactions.save(transfer);
+        return TransferResponse.from(transfer, source.getBalance(), destination.getBalance());
+    }
+
+    private boolean isSameTransfer(Transaction transaction, TransferFundsCommand command) {
+        return transaction.getType() == TransactionType.TRANSFER
+                && transaction.getSourceAccount() != null
+                && transaction.getDestinationAccount() != null
+                && transaction.getSourceAccount().getId().equals(command.sourceAccountId())
+                && transaction.getDestinationAccount().getId().equals(command.destinationAccountId())
+                && transaction.getAmount().compareTo(command.amount()) == 0;
     }
 
     private void validateSameAccount(Long sourceId, Long destinationId) {
@@ -110,26 +109,15 @@ public class TransferFunds {
         }
     }
 
-    private Transaction createDebitTransaction(String transferId, TransferFundsCommand command, Account source) {
+    private Transaction createTransferTransaction(TransferFundsCommand command, Account source, Account destination) {
         Transaction transaction = new Transaction(
-                transferId,
+                UUID.randomUUID().toString(),
                 TransactionType.TRANSFER,
                 command.amount(),
                 TransactionStatus.COMPLETED
         );
         transaction.setIdempotencyKey(command.idempotencyKey());
         transaction.setSourceAccount(source);
-        return transaction;
-    }
-
-    private Transaction createCreditTransaction(String transferId, TransferFundsCommand command, Account destination) {
-        Transaction transaction = new Transaction(
-                transferId,
-                TransactionType.TRANSFER,
-                command.amount(),
-                TransactionStatus.COMPLETED
-        );
-        transaction.setIdempotencyKey(command.idempotencyKey());
         transaction.setDestinationAccount(destination);
         return transaction;
     }

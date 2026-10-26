@@ -14,9 +14,9 @@ import com.banking.backend.domain.model.Transaction;
 import com.banking.backend.domain.repository.AccountRepository;
 import com.banking.backend.domain.repository.TransactionRepository;
 import com.banking.backend.interfaceadapters.transfer.TransferResponse;
-import jakarta.persistence.OptimisticLockException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -46,8 +46,8 @@ class TransferFundsTest {
         Account destination = createAccountWithId("ES222222222222222222222222222222", customer, 2L);
         destination.setBalance(new BigDecimal("200.00"));
 
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         Transaction debit = createTransaction("tx-001", source, destination, new BigDecimal("100.00"));
         when(transactions.findByIdempotencyKey("key-1")).thenReturn(Optional.empty());
@@ -63,19 +63,23 @@ class TransferFundsTest {
         assertEquals(new BigDecimal("300.00"), result.destinationBalance());
         assertEquals("EUR", result.currency());
         assertEquals(TransactionStatus.COMPLETED.name(), result.status());
-        verify(transactions, times(2)).save(any(Transaction.class));
+        ArgumentCaptor<Transaction> savedTransfer = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactions).save(savedTransfer.capture());
+        assertEquals(source, savedTransfer.getValue().getSourceAccount());
+        assertEquals(destination, savedTransfer.getValue().getDestinationAccount());
+        assertEquals("key-1", savedTransfer.getValue().getIdempotencyKey());
     }
 
     @Test
-    void returnsExistingTransactionsWhenIdempotencyKeyAlreadyUsed() {
+    void returnsExistingTransactionWhenIdempotencyKeyAlreadyUsed() {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
         Account source = createAccountWithId("ES111111111111111111111111111111", customer, 1L);
         source.setBalance(new BigDecimal("400.00"));
         Account destination = createAccountWithId("ES222222222222222222222222222222", customer, 2L);
         destination.setBalance(new BigDecimal("300.00"));
 
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         Transaction existingDebit = createTransaction("tx-002", source, destination, new BigDecimal("50.00"));
         when(transactions.findByIdempotencyKey("key-2")).thenReturn(Optional.of(existingDebit));
@@ -93,26 +97,30 @@ class TransferFundsTest {
 
     @Test
     void throwsWhenSourceAccountDoesNotExist() {
-        when(accounts.findById(999L)).thenReturn(Optional.empty());
+        Account destination = createAccountWithId("ES222222222222222222222222222222",
+                new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 2L);
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(999L)).thenReturn(Optional.empty());
 
         TransferFundsCommand command = new TransferFundsCommand(999L, 2L, "key-3", new BigDecimal("100.00"));
 
         assertThrows(AccountNotFoundException.class, () -> transferFunds.execute(command));
-        verify(accounts).findById(999L);
+        verify(accounts).findByIdForUpdate(2L);
+        verify(accounts).findByIdForUpdate(999L);
         verify(transactions, never()).save(any());
     }
 
     @Test
     void throwsWhenDestinationAccountDoesNotExist() {
         Account source = createAccount("ES111111111111111111111111111111", new Customer("AB123", "Ana", "Garcia", "ana@example.com"));
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(999L)).thenReturn(Optional.empty());
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(999L)).thenReturn(Optional.empty());
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 999L, "key-4", new BigDecimal("100.00"));
 
         assertThrows(AccountNotFoundException.class, () -> transferFunds.execute(command));
-        verify(accounts).findById(1L);
-        verify(accounts).findById(999L);
+        verify(accounts).findByIdForUpdate(1L);
+        verify(accounts).findByIdForUpdate(999L);
         verify(transactions, never()).save(any());
     }
 
@@ -121,8 +129,8 @@ class TransferFundsTest {
         Account source = createAccountWithId("ES111111111111111111111111111111", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 1L);
         source.setStatus(AccountStatus.CLOSED);
         Account destination = createAccountWithId("ES222222222222222222222222222222", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 2L);
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 2L, "key-5", new BigDecimal("100.00"));
 
@@ -135,8 +143,8 @@ class TransferFundsTest {
         Account source = createAccountWithId("ES111111111111111111111111111111", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 1L);
         Account destination = createAccountWithId("ES222222222222222222222222222222", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 2L);
         destination.setStatus(AccountStatus.CLOSED);
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 2L, "key-6", new BigDecimal("100.00"));
 
@@ -147,7 +155,7 @@ class TransferFundsTest {
     @Test
     void throwsWhenTransferringToSameAccount() {
         Account source = createAccountWithId("ES111111111111111111111111111111", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 1L);
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 1L, "key-7", new BigDecimal("100.00"));
 
@@ -161,8 +169,8 @@ class TransferFundsTest {
         source.setCurrency("USD");
         Account destination = createAccountWithId("ES222222222222222222222222222222", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 2L);
         destination.setCurrency("EUR");
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 2L, "key-8", new BigDecimal("100.00"));
 
@@ -175,8 +183,8 @@ class TransferFundsTest {
         Account source = createAccountWithId("ES111111111111111111111111111111", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 1L);
         source.setBalance(new BigDecimal("30.00"));
         Account destination = createAccountWithId("ES222222222222222222222222222222", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 2L);
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 2L, "key-9", new BigDecimal("100.00"));
 
@@ -231,8 +239,8 @@ class TransferFundsTest {
         Account destination = createAccountWithId("ES444444444444444444444444444444", customer, 4L);
         destination.setBalance(new BigDecimal("200.00"));
 
-        when(accounts.findById(3L)).thenReturn(Optional.of(source));
-        when(accounts.findById(4L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(3L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(4L)).thenReturn(Optional.of(destination));
 
         Transaction debit = createTransaction("tx-003", source, destination, new BigDecimal("200.00"));
         debit.setIdempotencyKey("key-9");
@@ -249,33 +257,29 @@ class TransferFundsTest {
     }
 
     @Test
-    void retriesOnOptimisticLockAndSucceedsOnSecondAttempt() {
+    void savesOneTransactionForTransfer() {
         Customer customer = new Customer("AB123", "Ana", "Garcia", "ana@example.com");
         Account source = createAccountWithId("ES111111111111111111111111111111", customer, 1L);
         source.setBalance(new BigDecimal("500.00"));
         Account destination = createAccountWithId("ES222222222222222222222222222222", customer, 2L);
         destination.setBalance(new BigDecimal("200.00"));
 
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         Transaction debit = createTransaction("tx-001", source, destination, new BigDecimal("100.00"));
         when(transactions.findByIdempotencyKey("key-1")).thenReturn(Optional.empty());
 
-        // First save fails with OptimisticLockException, second succeeds
-        when(transactions.save(any(Transaction.class)))
-                .thenThrow(new OptimisticLockException("Optimistic locking failed"))
-                .thenReturn(debit)
-                .thenReturn(debit);
+        when(transactions.save(any(Transaction.class))).thenReturn(debit);
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 2L, "key-1", new BigDecimal("100.00"));
         TransferResponse result = transferFunds.execute(command);
 
         assertNotNull(result);
         assertEquals(debit.getId(), result.transactionId());
-        assertEquals(new BigDecimal("300.00"), result.sourceBalance());
-        assertEquals(new BigDecimal("400.00"), result.destinationBalance());
-        verify(transactions, times(3)).save(any(Transaction.class)); // 1 failed debit + 1 debit + 1 credit
+        assertEquals(new BigDecimal("400.00"), result.sourceBalance());
+        assertEquals(new BigDecimal("300.00"), result.destinationBalance());
+        verify(transactions).save(any(Transaction.class));
     }
 
     @Test
@@ -285,8 +289,8 @@ class TransferFundsTest {
         Account destination = createAccountWithId("ES222222222222222222222222222222", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 2L);
         destination.setBalance(new BigDecimal("200.00"));
 
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         Transaction debit = createTransaction("tx-exact", source, destination, new BigDecimal("100.00"));
         when(transactions.findByIdempotencyKey("key-exact")).thenReturn(Optional.empty());
@@ -305,8 +309,8 @@ class TransferFundsTest {
         Account source = createAccountWithId("ES111111111111111111111111111111", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 1L);
         source.setBalance(new BigDecimal("99.99"));
         Account destination = createAccountWithId("ES222222222222222222222222222222", new Customer("AB123", "Ana", "Garcia", "ana@example.com"), 2L);
-        when(accounts.findById(1L)).thenReturn(Optional.of(source));
-        when(accounts.findById(2L)).thenReturn(Optional.of(destination));
+        when(accounts.findByIdForUpdate(1L)).thenReturn(Optional.of(source));
+        when(accounts.findByIdForUpdate(2L)).thenReturn(Optional.of(destination));
 
         TransferFundsCommand command = new TransferFundsCommand(1L, 2L, "key-insuff", new BigDecimal("100.00"));
 
