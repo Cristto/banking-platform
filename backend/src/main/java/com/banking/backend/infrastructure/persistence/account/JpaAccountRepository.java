@@ -28,6 +28,11 @@ public class JpaAccountRepository implements AccountRepository {
     }
 
     @Override
+    public Optional<Account> findByIdForUpdate(Long id) {
+        return springDataRepository.findByIdForUpdate(id);
+    }
+
+    @Override
     public List<Account> findByCustomerId(Long customerId) {
         return springDataRepository.findByCustomerId(customerId);
     }
