@@ -4,8 +4,6 @@ import com.banking.backend.domain.enums.CustomerStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "customers")
@@ -39,9 +37,6 @@ public class Customer {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "customer")
-    private List<Card> cards = new ArrayList<>();
 
     public Customer() {
     }
@@ -99,9 +94,5 @@ public class Customer {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public List<Card> getCards() {
-        return cards;
     }
 }

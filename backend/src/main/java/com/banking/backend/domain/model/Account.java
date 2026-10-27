@@ -44,7 +44,7 @@ public class Account {
     private Long customerId;
 
     @OneToMany(mappedBy = "account")
-    private List<Card> cards = new ArrayList<>();
+    private List<Purchase> purchases = new ArrayList<>();
 
     public Account() {
     }
@@ -127,7 +127,7 @@ public class Account {
         this.customerId = customerId;
     }
 
-    public List<Card> getCards() {
-        return cards;
+    public List<Purchase> getPurchases() {
+        return purchases;
     }
 }

@@ -4,6 +4,6 @@ public enum TransactionType {
     DEPOSIT,
     WITHDRAWAL,
     TRANSFER,
-    CARD_SETTLEMENT,
-    CARD_REFUND
+    SETTLEMENT,
+    REFUND
 }
