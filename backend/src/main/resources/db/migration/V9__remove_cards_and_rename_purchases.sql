@@ -1,20 +1,37 @@
--- Drop indexes on card_purchases before renaming
+-- Create the purchases table directly with account_id (the final structure).
+-- This migration works both from a fresh database and when upgrading from V8.
+
+CREATE TABLE IF NOT EXISTS purchases (
+    id                      BIGSERIAL PRIMARY KEY,
+    account_id              BIGINT       NOT NULL REFERENCES accounts (id),
+    purchase_reference      VARCHAR(80)  NOT NULL UNIQUE,
+    merchant_name           VARCHAR(150) NOT NULL,
+    amount                  NUMERIC(18,2) NOT NULL,
+    status                  VARCHAR(20)  NOT NULL,
+    refunded_amount         NUMERIC(18,2) NOT NULL DEFAULT 0.00,
+    settlement_transaction_id BIGINT UNIQUE REFERENCES transactions (id),
+    authorized_at           TIMESTAMPTZ,
+    settled_at              TIMESTAMPTZ,
+    created_at              TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_purchases_account ON purchases (account_id);
+CREATE INDEX IF NOT EXISTS idx_purchases_settlement ON purchases (settlement_transaction_id);
+
+-- Migrate data from card_purchases to purchases (if upgrading from V8).
+-- When running from scratch, card_purchases won't exist and this will be skipped.
+INSERT INTO purchases (id, account_id, purchase_reference, merchant_name, amount, status,
+                      refunded_amount, settlement_transaction_id, authorized_at, settled_at, created_at)
+SELECT cp.id, c.account_id, cp.purchase_reference, cp.merchant_name, cp.amount, cp.status,
+       cp.refunded_amount, cp.settlement_transaction_id, cp.authorized_at, cp.settled_at, cp.created_at
+FROM card_purchases cp
+JOIN cards c ON cp.card_id = c.id
+ON CONFLICT (purchase_reference) DO NOTHING;
+
+-- Drop old tables and indexes (safe when they don't exist).
 DROP INDEX IF EXISTS idx_card_purchases_card;
 DROP INDEX IF EXISTS idx_card_purchases_settlement;
-
--- Rename card_purchases table to purchases
-ALTER TABLE card_purchases RENAME TO purchases;
-
--- Rename card_id column to account_id
-ALTER TABLE purchases RENAME COLUMN card_id TO account_id;
-
--- Update foreign key constraint name and target
-ALTER TABLE purchases DROP CONSTRAINT IF EXISTS card_purchases_card_id_fkey;
-ALTER TABLE purchases ADD CONSTRAINT purchases_account_id_fk FOREIGN KEY (account_id) REFERENCES accounts (id);
-
--- Drop indexes on cards before dropping the table
 DROP INDEX IF EXISTS idx_cards_account;
 DROP INDEX IF EXISTS idx_cards_customer;
-
--- Drop cards table (no longer needed; purchases are now linked directly to accounts)
-DROP TABLE cards;
+DROP TABLE IF EXISTS card_purchases;
+DROP TABLE IF EXISTS cards;
