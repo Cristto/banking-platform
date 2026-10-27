@@ -24,10 +24,22 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
+      group-id: banking-backend-purchase-settlements
       auto-offset-reset: earliest
       enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.value.default.type: com.banking.backend.infrastructure.kafka.purchase.SettlementEvent
+        spring.json.trusted.packages: com.banking.backend.infrastructure.kafka.purchase
+        spring.json.use.type.headers: false
     producer:
       acks: all
+
+app:
+  kafka:
+    topics:
+      purchase-settlements: purchase.settlements
 
 server:
   port: 8081
