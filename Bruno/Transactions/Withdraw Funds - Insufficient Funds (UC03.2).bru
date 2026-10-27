@@ -1,0 +1,30 @@
+meta {
+  name: Withdraw Funds - Insufficient Funds (UC03.2)
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8081/api/accounts/{{accountId}}/withdrawals
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "idempotencyKey": "wd-002",
+    "amount": 999999.00
+  }
+}
+
+tests {
+  test("returns 4xx for insufficient funds", function () {
+    expect(res.getStatus()).to.be.a("number").and(function (status) {
+      return status >= 400 && status < 500;
+    });
+  });
+}

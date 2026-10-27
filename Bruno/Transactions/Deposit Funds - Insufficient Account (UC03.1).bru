@@ -1,0 +1,30 @@
+meta {
+  name: Deposit Funds - Insufficient Account (UC03.1)
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8081/api/accounts/{{accountId}}/deposits
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "idempotencyKey": "dep-002",
+    "amount": -100.00
+  }
+}
+
+tests {
+  test("returns 4xx for negative amount", function () {
+    expect(res.getStatus()).to.be.a("number").and(function (status) {
+      return status >= 400 && status < 500;
+    });
+  });
+}

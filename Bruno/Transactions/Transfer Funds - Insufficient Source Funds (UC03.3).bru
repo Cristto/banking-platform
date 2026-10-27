@@ -1,0 +1,32 @@
+meta {
+  name: Transfer Funds - Insufficient Source Funds (UC03.3)
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8081/api/accounts/transfers
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "sourceAccountId": {{sourceAccountId}},
+    "destinationAccountId": {{destinationAccountId}},
+    "idempotencyKey": "tr-002",
+    "amount": 999999.00
+  }
+}
+
+tests {
+  test("returns 4xx for insufficient source funds", function () {
+    expect(res.getStatus()).to.be.a("number").and(function (status) {
+      return status >= 400 && status < 500;
+    });
+  });
+}

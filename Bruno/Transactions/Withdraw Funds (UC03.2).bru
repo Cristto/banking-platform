@@ -1,0 +1,38 @@
+meta {
+  name: Withdraw Funds (UC03.2)
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8081/api/accounts/{{accountId}}/withdrawals
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "idempotencyKey": "wd-001",
+    "amount": 100.00
+  }
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("returns transactionId, amount, balance, currency, status, createdAt", function () {
+    const body = res.getBody();
+    expect(body.transactionId).to.be.an("number");
+    expect(body.amount).to.be.an("number");
+    expect(body.balance).to.be.an("number");
+    expect(body.currency).to.equal("EUR");
+    expect(body.status).to.equal("COMPLETED");
+    expect(body.createdAt).to.be.an("string");
+  });
+}

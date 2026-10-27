@@ -64,23 +64,7 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Acceptance criteria:** Valid operations update balances and transaction history consistently. Insufficient funds, invalid accounts, and concurrent operations cannot create inconsistent balances.
 
-## UC04 — Debit Card Management
-
-**Goal:** Allow a customer to use a debit card linked to an account.
-
-**Capabilities:** Issue a card, view its status and linked account, and block a card.
-
-**Functional use cases:**
-
-- **UC04.1 — Issue debit card:** Associate a card with an eligible account.
-- **UC04.2 — View card status:** Inspect card status and linked account.
-- **UC04.3 — Block card:** Prevent new purchase authorizations.
-
-**Main rules:** A card must belong to an eligible account; blocked cards cannot authorize new purchases; a debit card does not have a separate stored balance.
-
-**Acceptance criteria:** An eligible account can obtain a card, and blocking it prevents subsequent purchase authorizations.
-
-## UC05 — Card Purchases and Refunds
+## UC04 — Card Purchases and Refunds
 
 **Goal:** Simulate card payments, delayed settlement, and refunds.
 
@@ -88,10 +72,10 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Functional use cases:**
 
-- **UC05.1 — Authorize purchase:** Create a pending purchase and reserve available funds.
-- **UC05.2 — Confirm settlement:** Settle an authorized purchase asynchronously via Kafka.
-- **UC05.3 — Reject settlement:** Reject a pending purchase and release its reservation as appropriate.
-- **UC05.4 — View purchases:** List purchases for a card or account.
+- **UC04.1 — Authorize purchase:** Create a pending purchase and reserve available funds.
+- **UC04.2 — Confirm settlement:** Settle an authorized purchase asynchronously via Kafka.
+- **UC04.3 — Reject settlement:** Reject a pending purchase and release its reservation as appropriate.
+- **UC04.4 — View purchases:** List purchases for a card or account.
 
 **Main rules:** A purchase requires an active card and sufficient available funds; authorization and final settlement are separate states; funds must not be debited twice.
 
