@@ -36,6 +36,9 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Column(name = "reserved_balance", nullable = false, precision = 19, scale = 2)
+    private BigDecimal reservedBalance = BigDecimal.ZERO;
+
     @Version
     @Column(nullable = false)
     private Long version = 0L;
@@ -85,6 +88,14 @@ public class Account {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public BigDecimal getReservedBalance() {
+        return reservedBalance;
+    }
+
+    public void setReservedBalance(BigDecimal reservedBalance) {
+        this.reservedBalance = reservedBalance;
     }
 
     public String getCurrency() {
