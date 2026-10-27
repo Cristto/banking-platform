@@ -29,4 +29,9 @@ public class JpaPurchaseRepository implements PurchaseRepository {
     public Optional<Purchase> findById(Long id) {
         return springDataRepository.findById(id);
     }
+
+    @Override
+    public Optional<Purchase> findByIdForUpdate(Long id) {
+        return springDataRepository.findByIdForUpdate(id);
+    }
 }

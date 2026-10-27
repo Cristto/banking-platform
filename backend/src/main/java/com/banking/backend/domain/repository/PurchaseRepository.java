@@ -11,4 +11,6 @@ public interface PurchaseRepository {
     Optional<Purchase> findByPurchaseReference(String purchaseReference);
 
     Optional<Purchase> findById(Long id);
+
+    Optional<Purchase> findByIdForUpdate(Long id);
 }

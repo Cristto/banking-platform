@@ -60,7 +60,7 @@ class AuthorizePurchaseTest {
         assertEquals(new BigDecimal("100.00"), response.amount());
         assertEquals(new BigDecimal("900.00"), response.availableBalance());
         assertEquals("EUR", response.currency());
-        assertEquals("AUTHORIZED", response.status());
+        assertEquals("PENDING", response.status());
         assertNotNull(response.authorizedAt());
 
         verify(accounts).findByIdForUpdate(1L);
@@ -88,7 +88,7 @@ class AuthorizePurchaseTest {
 
         assertNotNull(response);
         assertEquals(1L, response.purchaseId());
-        assertEquals("AUTHORIZED", response.status());
+        assertEquals("PENDING", response.status());
 
         verify(accounts).findByIdForUpdate(1L);
         verify(purchases).findByPurchaseReference("REF-001");
@@ -179,7 +179,7 @@ class AuthorizePurchaseTest {
     }
 
     private Purchase createPurchase(Account account, String reference, String merchant, BigDecimal amount) {
-        Purchase purchase = new Purchase(account, reference, merchant, amount, PurchaseStatus.AUTHORIZED);
+        Purchase purchase = new Purchase(account, reference, merchant, amount, PurchaseStatus.PENDING);
         return purchase;
     }
 }

@@ -67,7 +67,7 @@ public class AuthorizePurchase {
                 command.purchaseReference(),
                 command.merchantName(),
                 command.amount(),
-                PurchaseStatus.AUTHORIZED
+                PurchaseStatus.PENDING
         );
         purchase.setAuthorizedAt(LocalDateTime.now());
         return purchase;
