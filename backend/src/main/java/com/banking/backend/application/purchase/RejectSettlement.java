@@ -24,16 +24,13 @@ public class RejectSettlement {
 
     @Transactional
     public void execute(RejectSettlementCommand command) {
-        Purchase purchaseSnapshot = purchases.findById(command.purchaseId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Purchase not found: " + command.purchaseId()));
-
-        Account account = accounts.findByIdForUpdate(purchaseSnapshot.getAccount().getId())
-                .orElseThrow(() -> new IllegalStateException(
-                        "Account not found for purchase: " + command.purchaseId()));
         Purchase purchase = purchases.findByIdForUpdate(command.purchaseId())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Purchase not found: " + command.purchaseId()));
+
+        Account account = accounts.findByIdForUpdate(purchase.getAccount().getId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Account not found for purchase: " + command.purchaseId()));
 
         // Idempotency: duplicate rejection events are safe no-ops.
         if (purchase.getStatus() == PurchaseStatus.REJECTED) {

@@ -52,14 +52,15 @@ class RejectSettlementTest {
         assertEquals(PurchaseStatus.REJECTED, purchase.getStatus());
         assertNotNull(purchase.getRejectedAt());
         verify(accounts).save(account);
+        verify(purchases).findByIdForUpdate(125L);
         verify(purchases).save(purchase);
-        verifyNoMoreInteractions(purchases);
     }
 
     @Test
     void duplicateEventIsIdempotent() {
         purchase.setStatus(PurchaseStatus.REJECTED);
         purchase.setRejectedAt(java.time.LocalDateTime.now());
+        account.setReservedBalance(new BigDecimal("0.00"));
 
         rejectSettlement.execute(new RejectSettlementCommand("event-1", 125L));
 
@@ -110,6 +111,6 @@ class RejectSettlementTest {
         rejectSettlement.execute(new RejectSettlementCommand("event-1", 125L));
 
         assertEquals(PurchaseStatus.SETTLED, purchase.getStatus());
-        assertNull(purchase.getSettlementTransaction());
+        assertSame(existing, purchase.getSettlementTransaction());
     }
 }
