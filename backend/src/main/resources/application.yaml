@@ -40,6 +40,7 @@ app:
   kafka:
     topics:
       purchase-settlements: purchase.settlements
+      purchase-refunds: purchase.refunds
 
 server:
   port: 8081

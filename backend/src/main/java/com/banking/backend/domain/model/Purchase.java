@@ -47,6 +47,10 @@ public class Purchase {
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "refund_transaction_id")
+    private Transaction refundTransaction;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -110,6 +114,14 @@ public class Purchase {
 
     public void setSettlementTransaction(Transaction settlementTransaction) {
         this.settlementTransaction = settlementTransaction;
+    }
+
+    public Transaction getRefundTransaction() {
+        return refundTransaction;
+    }
+
+    public void setRefundTransaction(Transaction refundTransaction) {
+        this.refundTransaction = refundTransaction;
     }
 
     public LocalDateTime getAuthorizedAt() {
