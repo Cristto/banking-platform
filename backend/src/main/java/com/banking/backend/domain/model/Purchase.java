@@ -44,6 +44,9 @@ public class Purchase {
     @Column(name = "settled_at")
     private LocalDateTime settledAt;
 
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -123,6 +126,14 @@ public class Purchase {
 
     public void setSettledAt(LocalDateTime settledAt) {
         this.settledAt = settledAt;
+    }
+
+    public LocalDateTime getRejectedAt() {
+        return rejectedAt;
+    }
+
+    public void setRejectedAt(LocalDateTime rejectedAt) {
+        this.rejectedAt = rejectedAt;
     }
 
     public LocalDateTime getCreatedAt() {

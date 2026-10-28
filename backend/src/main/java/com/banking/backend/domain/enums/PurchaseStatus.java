@@ -4,6 +4,7 @@ public enum PurchaseStatus {
     PENDING,
     AUTHORIZED,
     SETTLED,
+    REJECTED,
     DECLINED,
     CANCELLED
 }
