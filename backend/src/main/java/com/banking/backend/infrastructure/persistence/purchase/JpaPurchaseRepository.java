@@ -4,6 +4,9 @@ import com.banking.backend.domain.model.Purchase;
 import com.banking.backend.domain.repository.PurchaseRepository;
 import org.springframework.stereotype.Component;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 @Component
@@ -33,5 +36,10 @@ public class JpaPurchaseRepository implements PurchaseRepository {
     @Override
     public Optional<Purchase> findByIdForUpdate(Long id) {
         return springDataRepository.findByIdForUpdate(id);
+    }
+
+    @Override
+    public Page<Purchase> findByAccountIdOrderByCreatedAtDesc(Long accountId, Pageable pageable) {
+        return springDataRepository.findByAccountIdOrderByCreatedAtDesc(accountId, pageable);
     }
 }

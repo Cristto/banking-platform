@@ -13,7 +13,9 @@ public record PurchaseResponse(
         BigDecimal availableBalance,
         String currency,
         String status,
-        LocalDateTime authorizedAt) {
+        LocalDateTime authorizedAt,
+        LocalDateTime settledAt,
+        LocalDateTime rejectedAt) {
 
     public static PurchaseResponse from(Purchase purchase, BigDecimal availableBalance) {
         return new PurchaseResponse(
@@ -24,7 +26,9 @@ public record PurchaseResponse(
                 availableBalance,
                 purchase.getAccount().getCurrency(),
                 purchase.getStatus().name(),
-                purchase.getAuthorizedAt()
+                purchase.getAuthorizedAt(),
+                purchase.getSettledAt(),
+                purchase.getRejectedAt()
         );
     }
 }

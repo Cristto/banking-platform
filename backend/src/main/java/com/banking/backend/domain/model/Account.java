@@ -141,4 +141,8 @@ public class Account {
     public List<Purchase> getPurchases() {
         return purchases;
     }
+
+    public BigDecimal getAvailableFunds() {
+        return balance.subtract(reservedBalance);
+    }
 }

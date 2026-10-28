@@ -10,6 +10,8 @@ import com.banking.backend.application.deposit.DepositFunds;
 import com.banking.backend.application.deposit.DepositFundsCommand;
 import com.banking.backend.application.purchase.AuthorizePurchase;
 import com.banking.backend.application.purchase.AuthorizePurchaseCommand;
+import com.banking.backend.application.purchase.ListPurchases;
+import com.banking.backend.application.purchase.ListPurchasesCommand;
 import com.banking.backend.application.transfer.TransferFunds;
 import com.banking.backend.application.transfer.TransferFundsCommand;
 import com.banking.backend.application.transaction.GetAccountTransactions;
@@ -55,10 +57,12 @@ public class AccountController {
     private final TransferFunds transferFunds;
     private final GetAccountTransactions getAccountTransactions;
     private final AuthorizePurchase authorizePurchase;
+    private final ListPurchases listPurchases;
 
     public AccountController(OpenAccount openAccount, GetAccount getAccount, ListCustomerAccounts listAccounts,
                               DepositFunds depositFunds, WithdrawFunds withdrawFunds, TransferFunds transferFunds,
-                              GetAccountTransactions getAccountTransactions, AuthorizePurchase authorizePurchase) {
+                              GetAccountTransactions getAccountTransactions, AuthorizePurchase authorizePurchase,
+                              ListPurchases listPurchases) {
         this.openAccount = openAccount;
         this.getAccount = getAccount;
         this.listAccounts = listAccounts;
@@ -67,6 +71,7 @@ public class AccountController {
         this.transferFunds = transferFunds;
         this.getAccountTransactions = getAccountTransactions;
         this.authorizePurchase = authorizePurchase;
+        this.listPurchases = listPurchases;
     }
 
     @PostMapping
@@ -118,5 +123,11 @@ public class AccountController {
     public PurchaseResponse createPurchase(@PathVariable Long id, @RequestBody PurchaseRequest request) {
         return authorizePurchase.execute(new AuthorizePurchaseCommand(id, request.purchaseReference(),
                 request.merchantName(), request.amount()));
+    }
+
+    @GetMapping("/{id}/purchases")
+    public Page<PurchaseResponse> listPurchases(@PathVariable Long id,
+                                                @PageableDefault Pageable pageable) {
+        return listPurchases.execute(new ListPurchasesCommand(id, pageable));
     }
 }

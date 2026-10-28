@@ -139,4 +139,8 @@ public class Purchase {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public Long getAccountId() {
+        return account.getId();
+    }
 }
