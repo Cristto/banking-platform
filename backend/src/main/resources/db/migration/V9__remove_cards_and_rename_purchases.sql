@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS purchases (
     settlement_transaction_id BIGINT UNIQUE REFERENCES transactions (id),
     authorized_at           TIMESTAMPTZ,
     settled_at              TIMESTAMPTZ,
+    rejected_at             TIMESTAMP,
     created_at              TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
