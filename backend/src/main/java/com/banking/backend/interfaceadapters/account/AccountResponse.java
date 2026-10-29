@@ -4,7 +4,7 @@ import com.banking.backend.domain.model.Account;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 public record AccountResponse(
         Long id,

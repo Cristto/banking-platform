@@ -6,7 +6,6 @@ import com.banking.backend.domain.repository.AccountRepository;
 import com.banking.backend.domain.repository.PurchaseRepository;
 import com.banking.backend.interfaceadapters.purchase.PurchaseResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

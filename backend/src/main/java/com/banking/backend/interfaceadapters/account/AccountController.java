@@ -19,8 +19,7 @@ import com.banking.backend.application.transaction.GetAccountTransactionsCommand
 import com.banking.backend.application.withdraw.WithdrawFunds;
 import com.banking.backend.application.withdraw.WithdrawFundsCommand;
 import com.banking.backend.domain.model.Account;
-import com.banking.backend.interfaceadapters.account.AccountResponse;
-import com.banking.backend.interfaceadapters.account.OpenAccountRequest;
+
 import com.banking.backend.interfaceadapters.deposit.DepositRequest;
 import com.banking.backend.interfaceadapters.deposit.DepositResponse;
 import com.banking.backend.interfaceadapters.purchase.PurchaseRequest;

@@ -1,10 +1,9 @@
 package com.banking.backend.infrastructure.persistence.customer;
 
-import com.banking.backend.domain.exception.DuplicateCustomerException;
+
 import com.banking.backend.domain.model.Customer;
 import com.banking.backend.domain.repository.CustomerRepository;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.banking.backend.infrastructure.persistence.purchase;
 
 import com.banking.backend.domain.model.Purchase;
-import com.banking.backend.domain.repository.PurchaseRepository;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;

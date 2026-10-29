@@ -1,6 +1,6 @@
 package com.banking.backend.application.transaction;
 
-import com.banking.backend.domain.enums.AccountStatus;
+
 import com.banking.backend.domain.enums.TransactionStatus;
 import com.banking.backend.domain.enums.TransactionType;
 import com.banking.backend.domain.exception.AccountNotFoundException;
@@ -18,7 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
 

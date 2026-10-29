@@ -1,7 +1,7 @@
 package com.banking.backend.interfaceadapters.transaction;
 
 import com.banking.backend.domain.model.Transaction;
-import com.banking.backend.domain.enums.TransactionStatus;
+
 import com.banking.backend.domain.enums.TransactionType;
 
 import java.math.BigDecimal;

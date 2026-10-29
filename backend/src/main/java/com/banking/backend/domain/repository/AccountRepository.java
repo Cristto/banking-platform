@@ -1,7 +1,7 @@
 package com.banking.backend.domain.repository;
 
 import com.banking.backend.domain.model.Account;
-import com.banking.backend.domain.model.Customer;
+
 
 import java.util.List;
 import java.util.Optional;
