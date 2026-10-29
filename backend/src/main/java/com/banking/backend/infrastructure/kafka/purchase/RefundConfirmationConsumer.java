@@ -14,7 +14,10 @@ public class RefundConfirmationConsumer {
         this.refundPurchase = refundPurchase;
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.purchase-refunds:purchase.refunds}")
+    @KafkaListener(
+        topics = "${app.kafka.topics.purchase-refunds:purchase.refunds}",
+        containerFactory = "refundKafkaListenerContainerFactory"
+    )
     public void consume(RefundEvent event) {
         if (event == null) {
             throw new IllegalArgumentException("Refund event must not be null");
