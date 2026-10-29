@@ -1,0 +1,26 @@
+meta {
+  name: List Purchases
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/accounts/{{accountId}}/purchases?page=0&size=10&sort=createdAt,desc
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("returns 200 and a paginated purchase result", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.content).to.be.an("array");
+    expect(body.totalElements).to.be.a("number");
+    expect(body.totalPages).to.be.a("number");
+    expect(body.number).to.equal(0);
+    expect(body.size).to.equal(10);
+  });
+}

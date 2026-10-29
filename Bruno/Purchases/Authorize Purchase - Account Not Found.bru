@@ -1,0 +1,29 @@
+meta {
+  name: Authorize Purchase - Account Not Found
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/accounts/{{nonExistentAccountId}}/purchases
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "purchaseReference": "BRU-PURCHASE-MISSING-001",
+    "merchantName": "Bruno Sample Store",
+    "amount": 25.00
+  }
+}
+
+tests {
+  test("returns 404 Not Found", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
