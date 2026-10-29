@@ -72,7 +72,7 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Functional use cases:**
 
-- **UC04.1 — Authorize Purchase:** Consume a Kafka purchase request, create a PENDING purchase, and reserve available funds.
+- **UC04.1 — Authorize Purchase:** Create a PENDING purchase, and reserve available funds.
 - **UC04.2 — Confirm Settlement:** Settle a pending purchase asynchronously via Kafka and record a PURCHASE transaction.
 - **UC04.3 — Reject Settlement:** Reject a pending purchase via Kafka and release its reserved funds.
 - **UC04.4 — View Purchases:** List purchases associated with a bank account.
