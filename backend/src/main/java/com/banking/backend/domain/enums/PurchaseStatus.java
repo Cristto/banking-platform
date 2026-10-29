@@ -1,8 +1,10 @@
 package com.banking.backend.domain.enums;
 
-public enum CardPurchaseStatus {
+public enum PurchaseStatus {
+    PENDING,
     AUTHORIZED,
     SETTLED,
+    REJECTED,
     DECLINED,
     CANCELLED
 }

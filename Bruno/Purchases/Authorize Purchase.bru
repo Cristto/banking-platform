@@ -1,0 +1,41 @@
+meta {
+  name: Authorize Purchase
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/accounts/{{accountId}}/purchases
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "purchaseReference": "BRU-PURCHASE-001",
+    "merchantName": "Bruno Sample Store",
+    "amount": 25.00
+  }
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("returns the authorized purchase and reduced available balance", function () {
+    const body = res.getBody();
+    expect(body.purchaseId).to.be.a("number");
+    expect(body.purchaseReference).to.equal("BRU-PURCHASE-001");
+    expect(body.merchantName).to.equal("Bruno Sample Store");
+    expect(body.amount).to.equal(25);
+    expect(body.availableBalance).to.be.a("number");
+    expect(body.currency).to.equal("EUR");
+    expect(body.status).to.equal("PENDING");
+    expect(body.authorizedAt).to.be.a("string");
+  });
+}

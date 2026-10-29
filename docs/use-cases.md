@@ -64,38 +64,23 @@ The numbered sub-use cases below are a **functional checklist**, not a mandatory
 
 **Acceptance criteria:** Valid operations update balances and transaction history consistently. Insufficient funds, invalid accounts, and concurrent operations cannot create inconsistent balances.
 
-## UC04 — Debit Card Management
+## UC04 — Purchases and Refunds
 
-**Goal:** Allow a customer to use a debit card linked to an account.
+**Goal:** Simulate bank account purchases, asynchronous settlement, and refunds using Kafka.
 
-**Capabilities:** Issue a card, view its status and linked account, and block a card.
-
-**Functional use cases:**
-
-- **UC04.1 — Issue debit card:** Associate a card with an eligible account.
-- **UC04.2 — View card status:** Inspect card status and linked account.
-- **UC04.3 — Block card:** Prevent new purchase authorizations.
-
-**Main rules:** A card must belong to an eligible account; blocked cards cannot authorize new purchases; a debit card does not have a separate stored balance.
-
-**Acceptance criteria:** An eligible account can obtain a card, and blocking it prevents subsequent purchase authorizations.
-
-## UC05 — Card Purchases and Refunds
-
-**Goal:** Simulate card payments, delayed settlement, and refunds.
-
-**Capabilities:** Authorize a purchase, reserve available funds, confirm or reject its settlement, and view purchases.
+**Capabilities:** Authorize purchases, reserve available funds, confirm or reject settlements, process refunds, and view purchases.
 
 **Functional use cases:**
 
-- **UC05.1 — Authorize purchase:** Create a pending purchase and reserve available funds.
-- **UC05.2 — Confirm settlement:** Settle an authorized purchase asynchronously via Kafka.
-- **UC05.3 — Reject settlement:** Reject a pending purchase and release its reservation as appropriate.
-- **UC05.4 — View purchases:** List purchases for a card or account.
+- **UC04.1 — Authorize Purchase:** Create a PENDING purchase, and reserve available funds.
+- **UC04.2 — Confirm Settlement:** Settle a pending purchase asynchronously via Kafka and record a PURCHASE transaction.
+- **UC04.3 — Reject Settlement:** Reject a pending purchase via Kafka and release its reserved funds.
+- **UC04.4 — View Purchases:** List purchases associated with a bank account.
+- **UC04.5 — Refund Purchase:** Process full or partial refunds via Kafka and record a REFUND transaction.
 
-**Main rules:** A purchase requires an active card and sufficient available funds; authorization and final settlement are separate states; funds must not be debited twice.
+**Main rules:** Purchases are linked directly to bank accounts without cards. Accounts must be active with sufficient available funds. Authorization and settlement are separate states. Settlements and refunds must be idempotent, and concurrent operations must preserve balance consistency.
 
-**Acceptance criteria:** A purchase becomes pending after authorization and later settles through asynchronous processing. Duplicate and failed events must not corrupt balances.
+**Acceptance criteria:** Purchases become PENDING after authorization and later settle or get rejected through Kafka. Refunds return funds to the account. Financial movements are recorded in `transactions`. Duplicate or failed events must not corrupt balances.
 
 ## ~~Supporting Feature — Branch Activity Simulator (deferred)~~
 

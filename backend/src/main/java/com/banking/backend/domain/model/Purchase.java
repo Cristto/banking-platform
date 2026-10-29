@@ -1,22 +1,22 @@
 package com.banking.backend.domain.model;
 
-import com.banking.backend.domain.enums.CardPurchaseStatus;
+import com.banking.backend.domain.enums.PurchaseStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "card_purchases")
-public class CardPurchase {
+@Table(name = "purchases")
+public class Purchase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "card_id", nullable = false)
-    private Card card;
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
     @Column(name = "purchase_reference", nullable = false, unique = true, length = 80)
     private String purchaseReference;
@@ -29,7 +29,7 @@ public class CardPurchase {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private CardPurchaseStatus status;
+    private PurchaseStatus status;
 
     @Column(name = "refunded_amount", nullable = false, precision = 18, scale = 2)
     private BigDecimal refundedAmount = BigDecimal.ZERO;
@@ -44,15 +44,22 @@ public class CardPurchase {
     @Column(name = "settled_at")
     private LocalDateTime settledAt;
 
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "refund_transaction_id")
+    private Transaction refundTransaction;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public CardPurchase() {
+    public Purchase() {
     }
 
-    public CardPurchase(Card card, String purchaseReference, String merchantName,
-                        BigDecimal amount, CardPurchaseStatus status) {
-        this.card = card;
+    public Purchase(Account account, String purchaseReference, String merchantName,
+                    BigDecimal amount, PurchaseStatus status) {
+        this.account = account;
         this.purchaseReference = purchaseReference;
         this.merchantName = merchantName;
         this.amount = amount;
@@ -65,8 +72,12 @@ public class CardPurchase {
         return id;
     }
 
-    public Card getCard() {
-        return card;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Account getAccount() {
+        return account;
     }
 
     public String getPurchaseReference() {
@@ -81,11 +92,11 @@ public class CardPurchase {
         return amount;
     }
 
-    public CardPurchaseStatus getStatus() {
+    public PurchaseStatus getStatus() {
         return status;
     }
 
-    public void setStatus(CardPurchaseStatus status) {
+    public void setStatus(PurchaseStatus status) {
         this.status = status;
     }
 
@@ -105,6 +116,14 @@ public class CardPurchase {
         this.settlementTransaction = settlementTransaction;
     }
 
+    public Transaction getRefundTransaction() {
+        return refundTransaction;
+    }
+
+    public void setRefundTransaction(Transaction refundTransaction) {
+        this.refundTransaction = refundTransaction;
+    }
+
     public LocalDateTime getAuthorizedAt() {
         return authorizedAt;
     }
@@ -121,7 +140,19 @@ public class CardPurchase {
         this.settledAt = settledAt;
     }
 
+    public LocalDateTime getRejectedAt() {
+        return rejectedAt;
+    }
+
+    public void setRejectedAt(LocalDateTime rejectedAt) {
+        this.rejectedAt = rejectedAt;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public Long getAccountId() {
+        return account.getId();
     }
 }

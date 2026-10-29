@@ -1,0 +1,20 @@
+meta {
+  name: List Purchases - Account Not Found
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/accounts/{{nonExistentAccountId}}/purchases?page=0&size=10
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("returns 404 Not Found", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

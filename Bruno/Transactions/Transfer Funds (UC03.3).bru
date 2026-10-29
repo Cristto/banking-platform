@@ -1,0 +1,41 @@
+meta {
+  name: Transfer Funds (UC03.3)
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8081/api/accounts/transfers
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "sourceAccountId": {{sourceAccountId}},
+    "destinationAccountId": {{destinationAccountId}},
+    "idempotencyKey": "tr-001",
+    "amount": 200.00
+  }
+}
+
+tests {
+  test("returns 201 Created", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("returns transactionId, amount, sourceBalance, destinationBalance, currency, status, createdAt", function () {
+    const body = res.getBody();
+    expect(body.transactionId).to.be.an("number");
+    expect(body.amount).to.be.an("number");
+    expect(body.sourceBalance).to.be.an("number");
+    expect(body.destinationBalance).to.be.an("number");
+    expect(body.currency).to.equal("EUR");
+    expect(body.status).to.equal("COMPLETED");
+    expect(body.createdAt).to.be.an("string");
+  });
+}

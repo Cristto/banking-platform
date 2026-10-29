@@ -8,6 +8,10 @@ import com.banking.backend.application.account.OpenAccount;
 import com.banking.backend.application.account.OpenAccountCommand;
 import com.banking.backend.application.deposit.DepositFunds;
 import com.banking.backend.application.deposit.DepositFundsCommand;
+import com.banking.backend.application.purchase.AuthorizePurchase;
+import com.banking.backend.application.purchase.AuthorizePurchaseCommand;
+import com.banking.backend.application.purchase.ListPurchases;
+import com.banking.backend.application.purchase.ListPurchasesCommand;
 import com.banking.backend.application.transfer.TransferFunds;
 import com.banking.backend.application.transfer.TransferFundsCommand;
 import com.banking.backend.application.transaction.GetAccountTransactions;
@@ -19,6 +23,8 @@ import com.banking.backend.interfaceadapters.account.AccountResponse;
 import com.banking.backend.interfaceadapters.account.OpenAccountRequest;
 import com.banking.backend.interfaceadapters.deposit.DepositRequest;
 import com.banking.backend.interfaceadapters.deposit.DepositResponse;
+import com.banking.backend.interfaceadapters.purchase.PurchaseRequest;
+import com.banking.backend.interfaceadapters.purchase.PurchaseResponse;
 import com.banking.backend.interfaceadapters.transaction.TransactionResponse;
 import com.banking.backend.interfaceadapters.transfer.TransferRequest;
 import com.banking.backend.interfaceadapters.transfer.TransferResponse;
@@ -50,10 +56,13 @@ public class AccountController {
     private final WithdrawFunds withdrawFunds;
     private final TransferFunds transferFunds;
     private final GetAccountTransactions getAccountTransactions;
+    private final AuthorizePurchase authorizePurchase;
+    private final ListPurchases listPurchases;
 
     public AccountController(OpenAccount openAccount, GetAccount getAccount, ListCustomerAccounts listAccounts,
-                             DepositFunds depositFunds, WithdrawFunds withdrawFunds, TransferFunds transferFunds,
-                             GetAccountTransactions getAccountTransactions) {
+                              DepositFunds depositFunds, WithdrawFunds withdrawFunds, TransferFunds transferFunds,
+                              GetAccountTransactions getAccountTransactions, AuthorizePurchase authorizePurchase,
+                              ListPurchases listPurchases) {
         this.openAccount = openAccount;
         this.getAccount = getAccount;
         this.listAccounts = listAccounts;
@@ -61,6 +70,8 @@ public class AccountController {
         this.withdrawFunds = withdrawFunds;
         this.transferFunds = transferFunds;
         this.getAccountTransactions = getAccountTransactions;
+        this.authorizePurchase = authorizePurchase;
+        this.listPurchases = listPurchases;
     }
 
     @PostMapping
@@ -105,5 +116,18 @@ public class AccountController {
     public Page<TransactionResponse> getAccountTransactions(@PathVariable Long id,
                                                             @PageableDefault Pageable pageable) {
         return getAccountTransactions.execute(new GetAccountTransactionsCommand(id, pageable));
+    }
+
+    @PostMapping("/{id}/purchases")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PurchaseResponse createPurchase(@PathVariable Long id, @RequestBody PurchaseRequest request) {
+        return authorizePurchase.execute(new AuthorizePurchaseCommand(id, request.purchaseReference(),
+                request.merchantName(), request.amount()));
+    }
+
+    @GetMapping("/{id}/purchases")
+    public Page<PurchaseResponse> listPurchases(@PathVariable Long id,
+                                                @PageableDefault Pageable pageable) {
+        return listPurchases.execute(new ListPurchasesCommand(id, pageable));
     }
 }

@@ -1,0 +1,23 @@
+meta {
+  name: List Purchases - Empty
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/accounts/{{accountWithoutPurchasesId}}/purchases?page=0&size=10
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("returns an empty page", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.content).to.be.an("array").that.is.empty;
+    expect(body.totalElements).to.equal(0);
+  });
+}

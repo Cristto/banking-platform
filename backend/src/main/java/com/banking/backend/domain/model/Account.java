@@ -36,6 +36,9 @@ public class Account {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Column(name = "reserved_balance", nullable = false, precision = 19, scale = 2)
+    private BigDecimal reservedBalance = BigDecimal.ZERO;
+
     @Version
     @Column(nullable = false)
     private Long version = 0L;
@@ -44,7 +47,7 @@ public class Account {
     private Long customerId;
 
     @OneToMany(mappedBy = "account")
-    private List<Card> cards = new ArrayList<>();
+    private List<Purchase> purchases = new ArrayList<>();
 
     public Account() {
     }
@@ -87,6 +90,14 @@ public class Account {
         this.balance = balance;
     }
 
+    public BigDecimal getReservedBalance() {
+        return reservedBalance;
+    }
+
+    public void setReservedBalance(BigDecimal reservedBalance) {
+        this.reservedBalance = reservedBalance;
+    }
+
     public String getCurrency() {
         return currency;
     }
@@ -127,7 +138,11 @@ public class Account {
         this.customerId = customerId;
     }
 
-    public List<Card> getCards() {
-        return cards;
+    public List<Purchase> getPurchases() {
+        return purchases;
+    }
+
+    public BigDecimal getAvailableFunds() {
+        return balance.subtract(reservedBalance);
     }
 }

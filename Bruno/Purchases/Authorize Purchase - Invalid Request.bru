@@ -1,0 +1,29 @@
+meta {
+  name: Authorize Purchase - Invalid Request
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/accounts/{{accountId}}/purchases
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "purchaseReference": "",
+    "merchantName": "Bruno Sample Store",
+    "amount": 0
+  }
+}
+
+tests {
+  test("returns 400 Bad Request", function () {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

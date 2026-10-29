@@ -1,0 +1,44 @@
+meta {
+  name: View Transaction History (UC03.4)
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:8081/api/accounts/{{accountId}}/transactions?page=0&size=20&sort=createdAt,desc
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("returns 200 and a paginated response", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("returns a page with content array", function () {
+    const body = res.getBody();
+    expect(body.content).to.be.an("array");
+    expect(body.totalElements).to.be.a("number");
+    expect(body.totalPages).to.be.a("number");
+    expect(body.number).to.be.a("number");
+    expect(body.size).to.be.a("number");
+  });
+
+  test("each transaction has expected fields", function () {
+    const body = res.getBody();
+    if (body.content.length > 0) {
+      const tx = body.content[0];
+      expect(tx.transactionId).to.be.an("number");
+      expect(tx.reference).to.be.an("string");
+      expect(tx.type).to.be.an("string");
+      expect(tx.amount).to.be.an("number");
+      expect(tx.balance).to.be.an("number");
+      expect(tx.currency).to.equal("EUR");
+      expect(tx.status).to.be.an("string");
+      expect(tx.createdAt).to.be.an("string");
+    }
+  });
+}

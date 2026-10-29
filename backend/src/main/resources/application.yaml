@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -24,10 +24,23 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
+      group-id: banking-backend-purchase-settlements
       auto-offset-reset: earliest
       enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.value.default.type: com.banking.backend.infrastructure.kafka.purchase.SettlementEvent
+        spring.json.trusted.packages: com.banking.backend.infrastructure.kafka.purchase
+        spring.json.use.type.headers: false
     producer:
       acks: all
+
+app:
+  kafka:
+    topics:
+      purchase-settlements: purchase.settlements
+      purchase-refunds: purchase.refunds
 
 server:
   port: 8081
