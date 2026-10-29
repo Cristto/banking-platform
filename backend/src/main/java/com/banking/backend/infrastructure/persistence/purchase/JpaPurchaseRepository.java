@@ -40,6 +40,6 @@ public class JpaPurchaseRepository implements PurchaseRepository {
 
     @Override
     public Page<Purchase> findByAccountIdOrderByCreatedAtDesc(Long accountId, Pageable pageable) {
-        return springDataRepository.findByAccountIdOrderByCreatedAtDesc(accountId, pageable);
+        return springDataRepository.findByAccount_IdOrderByCreatedAtDesc(accountId, pageable);
     }
 }

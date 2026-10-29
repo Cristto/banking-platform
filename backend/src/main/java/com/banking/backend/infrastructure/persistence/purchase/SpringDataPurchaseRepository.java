@@ -22,5 +22,5 @@ public interface SpringDataPurchaseRepository extends JpaRepository<Purchase, Lo
     @Query("select p from Purchase p where p.id = :id")
     Optional<Purchase> findByIdForUpdate(@Param("id") Long id);
 
-    Page<Purchase> findByAccountIdOrderByCreatedAtDesc(Long accountId, Pageable pageable);
+    Page<Purchase> findByAccount_IdOrderByCreatedAtDesc(Long accountId, Pageable pageable);
 }
